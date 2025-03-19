@@ -9,7 +9,7 @@
         <h2>{{ genre.name }} ({{ genreCount[genre.id] }} movies)</h2>
         <div class="movie-list">
           <div
-            v-for="movie in genreMovies[genre.id]"
+            v-for="movie in visibleMovies[genre.id]"
             :key="movie.id"
             class="movie-card"
           >
@@ -18,41 +18,51 @@
             <p>Release Date: {{ movie.releaseDate }}</p>
           </div>
         </div>
+        <button
+          v-if="visibleMovies[genre.id].length < genreCount[genre.id]"
+          @click="loadMoreMovies(genre)"
+        >
+          Load More
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import axios from "axios" // Importér axios
+import axios from "axios" // Import axios
 import { ref, onMounted } from "vue"
 
-const genres = ref([]) // Lager til genrer
-const genreMovies = ref({}) // Lager til filmene for hver genre
-const genreCount = ref({}) // Lager til at holde styr på antal film pr. genre
-const loading = ref(true) // Loader status
+const genres = ref([]) // Store genres
+const genreMovies = ref({}) // Store movies for each genre
+const genreCount = ref({}) // Store the number of movies per genre
+const visibleMovies = ref({}) // Store the movies that should be visible
+const loading = ref(true) // Loading status
+const limit = 5 // Number of movies to load per click
 
+// Fetch genres and movies from the backend
 const fetchGenresAndMovies = async () => {
   try {
     loading.value = true
 
-    // Hent genrer fra backend
+    // Fetch genres from the backend
     const genreResponse = await axios.get(
       "http://localhost:5000/api/movies/genres"
     )
-    genres.value = genreResponse.data // Opdater genrerne
+    genres.value = genreResponse.data // Update genres
 
-    // Hent film for hver genre
+    // Fetch movies for each genre
     for (const genre of genres.value) {
       const movieResponse = await axios.get(
         "http://localhost:5000/api/movies/moviesbygenre",
         {
-          params: { genreId: genre.id }, // Send genreId som query-param
+          params: { genreId: genre.id }, // Send genreId as query param
         }
       )
 
-      genreMovies.value[genre.id] = movieResponse.data // Opdater filmene for genre
-      genreCount.value[genre.id] = movieResponse.data.length // Opdater antal film for genre
+      genreMovies.value[genre.id] = movieResponse.data // Update movies for genre
+      genreCount.value[genre.id] = movieResponse.data.length // Update movie count for genre
+      visibleMovies.value[genre.id] = movieResponse.data.slice(0, limit) // Show first set of movies
     }
   } catch (error) {
     console.error("Failed to fetch genres and movies:", error)
@@ -61,7 +71,22 @@ const fetchGenresAndMovies = async () => {
   }
 }
 
-// Kald API'en når komponenten er monteret
+// Load more movies for a given genre
+const loadMoreMovies = (genre) => {
+  const currentVisibleMovies = visibleMovies.value[genre.id]
+  const allMovies = genreMovies.value[genre.id]
+
+  // Load next set of movies by slicing the next chunk
+  const nextMovies = allMovies.slice(
+    currentVisibleMovies.length,
+    currentVisibleMovies.length + limit
+  )
+
+  // Update visible movies for that genre
+  visibleMovies.value[genre.id] = [...currentVisibleMovies, ...nextMovies]
+}
+
+// Call the fetch function when the component is mounted
 onMounted(() => {
   fetchGenresAndMovies()
 })
