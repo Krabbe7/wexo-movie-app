@@ -30,63 +30,84 @@
 </template>
 
 <script setup>
-import axios from "axios" // Import axios
+import axios from "axios" // Importer axios
 import { ref, onMounted } from "vue"
 
-const genres = ref([]) // Store genres
-const genreMovies = ref({}) // Store movies for each genre
-const genreCount = ref({}) // Store the number of movies per genre
-const visibleMovies = ref({}) // Store the movies that should be visible
-const loading = ref(true) // Loading status
-const limit = 5 // Number of movies to load per click
+const genres = ref([]) // Gemmer genrer
+const genreMovies = ref({}) // Gemmer film for hver genre
+const genreCount = ref({}) // Gemmer antallet af film pr. genre
+const visibleMovies = ref({}) // Gemmer de film, der skal være synlige
+const loading = ref(true) // Indlæsningsstatus
+const limit = 5 // Antal film, der skal indlæses pr. klik
+const page = ref({})
 
-// Fetch genres and movies from the backend
+// Hent genrer og film fra backend
 const fetchGenresAndMovies = async () => {
   try {
     loading.value = true
 
-    // Fetch genres from the backend
+    // Hent genrer fra backend
     const genreResponse = await axios.get(
       "http://localhost:5000/api/movies/genres"
     )
-    genres.value = genreResponse.data // Update genres
+    genres.value = genreResponse.data // Opdater genrer
 
-    // Fetch movies for each genre
+    // Hent film for hver genre
     for (const genre of genres.value) {
-      const movieResponse = await axios.get(
-        "http://localhost:5000/api/movies/moviesbygenre",
-        {
-          params: { genreId: genre.id }, // Send genreId as query param
-        }
-      )
-
-      genreMovies.value[genre.id] = movieResponse.data // Update movies for genre
-      genreCount.value[genre.id] = movieResponse.data.length // Update movie count for genre
-      visibleMovies.value[genre.id] = movieResponse.data.slice(0, limit) // Show first set of movies
+      page.value[genre.id] = 1 // Initialiser siden for genren
+      await loadMoviesForGenre(genre) // Hent den første side med film
     }
   } catch (error) {
-    console.error("Failed to fetch genres and movies:", error)
+    console.error("Kunne ikke hente genrer og film:", error)
   } finally {
     loading.value = false
   }
 }
 
-// Load more movies for a given genre
-const loadMoreMovies = (genre) => {
-  const currentVisibleMovies = visibleMovies.value[genre.id]
-  const allMovies = genreMovies.value[genre.id]
+// Indlæs film for en specifik genre
+const loadMoviesForGenre = async (genre) => {
+  try {
+    const genreId = genre.id
+    const currentPage = page.value[genreId]
+    const movieResponse = await axios.get(
+      "http://localhost:5000/api/movies/moviesbygenre",
+      {
+        params: { genreId, page: currentPage }, // Send genreId og side som query-parametre
+      }
+    )
 
-  // Load next set of movies by slicing the next chunk
+    // Opdater film for genren
+    genreMovies.value[genreId] = movieResponse.data
+    genreCount.value[genreId] = movieResponse.data.length // Opdater antal film for genren
+
+    // Opdater synlige film for genren
+    if (!visibleMovies.value[genreId]) {
+      visibleMovies.value[genreId] = movieResponse.data.slice(0, limit) // Vis det første sæt af film
+    }
+  } catch (error) {
+    console.error("Kunne ikke indlæse film for genren:", error)
+  }
+}
+
+// Indlæs flere film for en given genre
+const loadMoreMovies = (genre) => {
+  const genreId = genre.id
+  const currentPage = page.value[genreId] + 1 // Inkrementér siden for genren
+
+  page.value[genreId] = currentPage // Opdater siden for genren
+  loadMoviesForGenre(genre) // Indlæs det næste sæt af film
+
+  // Opdater synlige film for genren
+  const allMovies = genreMovies.value[genreId]
+  const currentVisibleMovies = visibleMovies.value[genreId]
   const nextMovies = allMovies.slice(
     currentVisibleMovies.length,
     currentVisibleMovies.length + limit
   )
-
-  // Update visible movies for that genre
-  visibleMovies.value[genre.id] = [...currentVisibleMovies, ...nextMovies]
+  visibleMovies.value[genreId] = [...currentVisibleMovies, ...nextMovies]
 }
 
-// Call the fetch function when the component is mounted
+// Kald hentningsfunktionen, når komponenten bliver monteret
 onMounted(() => {
   fetchGenresAndMovies()
 })

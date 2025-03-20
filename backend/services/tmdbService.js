@@ -23,22 +23,32 @@ const getGenres = async () => {
     throw new Error("Oops, something went wrong while fetching genres.")
   }
 }
-
-const getMoviesByGenre = async (genreId) => {
+const getMoviesByGenre = async (genreId, pages = 5) => {
   try {
-    const url = `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&language=en-US`
-    const response = await axios.get(url)
+    let allMovies = []
 
-    if (response.status !== 200) {
-      throw new Error(`Failed to fetch movies for genre ${genreId}`)
+    for (let page = 1; page <= pages; page++) {
+      // <= pages sikrer, at vi henter alle sider
+      const url = `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&language=en-US&page=${page}`
+      const response = await axios.get(url)
+
+      if (response.status !== 200) {
+        throw new Error(
+          `Failed to fetch movies for genre ${genreId} on page ${page}`
+        )
+      }
+
+      const movies = response.data.results.map((movie) => ({
+        id: movie.id,
+        title: movie.title,
+        poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+        releaseDate: movie.release_date,
+      }))
+
+      allMovies = [...allMovies, ...movies]
     }
 
-    return response.data.results.map((movie) => ({
-      id: movie.id,
-      title: movie.title,
-      poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-      releaseDate: movie.release_date,
-    }))
+    return allMovies
   } catch (error) {
     console.error("Error in getMoviesByGenre:", error.message)
     throw error

@@ -15,12 +15,12 @@ router.get("/genres", async (req, res) => {
 
 router.get("/moviesbygenre", async (req, res) => {
   try {
-    const { genreId } = req.query // Hent genreId fra query
+    const { genreId, pages = 5 } = req.query // Hent genreId og antal sider
     if (!genreId) {
       return res.status(400).json({ error: "Missing genreId parameter" })
     }
 
-    const movies = await tmdbService.getMoviesByGenre(genreId)
+    const movies = await tmdbService.getMoviesByGenre(genreId, parseInt(pages)) // Sender videre til service
     res.json(movies)
   } catch (error) {
     console.error("Error fetching movies by genre:", error.message)
