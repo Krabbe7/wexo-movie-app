@@ -52,11 +52,11 @@ const fetchGenresAndMovies = async () => {
     )
     genres.value = genreResponse.data // Opdater genrer
 
-    // Hent film for hver genre
-    for (const genre of genres.value) {
-      page.value[genre.id] = 1 // Initialiser siden for genren
-      await loadMoviesForGenre(genre) // Hent den første side med film
-    }
+    // Hent film for alle genrer parallelt
+    const genreMoviesPromises = genres.value.map((genre) =>
+      loadMoviesForGenre(genre)
+    )
+    await Promise.all(genreMoviesPromises)
   } catch (error) {
     console.error("Kunne ikke hente genrer og film:", error)
   } finally {
