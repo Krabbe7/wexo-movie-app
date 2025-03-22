@@ -7,6 +7,9 @@
     <div v-else>
       <div v-for="genre in genres" :key="genre.id" class="genre-section">
         <h2>{{ genre.name }} ({{ genreCount[genre.id] }} movies)</h2>
+        <button class="MoviesInGenre" @click="goToMoviesInGenre(genre.id)">
+          See all {{ genre.name }} movies
+        </button>
         <div class="movie-list">
           <div
             v-for="movie in visibleMovies[genre.id]"
@@ -33,6 +36,8 @@
 <script setup>
 import axios from "axios" // Importer axios
 import { ref, onMounted } from "vue"
+import { useRouter } from "vue-router"
+const router = useRouter()
 
 const genres = ref([]) // Gemmer genrer
 const genreMovies = ref({}) // Gemmer film for hver genre
@@ -115,6 +120,10 @@ const loadMoreMovies = (genre) => {
     currentVisibleMovies.length + limit
   )
   visibleMovies.value[genreId] = [...currentVisibleMovies, ...nextMovies]
+}
+
+const goToMoviesInGenre = (genreId) => {
+  router.push({ name: "movie-genre", params: { id: genreId } })
 }
 
 // Kald hentningsfunktionen, når komponenten bliver monteret
