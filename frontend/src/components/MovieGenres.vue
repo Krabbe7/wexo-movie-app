@@ -15,6 +15,7 @@
             v-for="movie in visibleMovies[genre.id]"
             :key="movie.id"
             class="movie-card"
+            @click="goToMovieDetails(movie.id)"
           >
             <img :src="movie.poster" alt="Movie Poster" />
             <h3>{{ movie.title }}</h3>
@@ -124,6 +125,10 @@ const loadMoreMovies = (genre) => {
 
 const goToMoviesInGenre = (genreId) => {
   router.push({ name: "movie-genre", params: { id: genreId } })
+}
+
+const goToMovieDetails = (movieId) => {
+  router.push({ name: "movie-details", params: { id: movieId } })
 }
 
 // Kald hentningsfunktionen, når komponenten bliver monteret
