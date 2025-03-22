@@ -41,8 +41,10 @@ const getMoviesByGenre = async (genreId, pages = 5) => {
       const movies = response.data.results.map((movie) => ({
         id: movie.id,
         title: movie.title,
-        poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-        releaseDate: movie.release_date,
+        poster: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : "https://placehold.co/500x750?text=No+Avalible+Image",
+        rating: movie.vote_average,
       }))
 
       allMovies = [...allMovies, ...movies]

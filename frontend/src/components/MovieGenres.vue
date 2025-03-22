@@ -15,7 +15,8 @@
           >
             <img :src="movie.poster" alt="Movie Poster" />
             <h3>{{ movie.title }}</h3>
-            <p>Release Date: {{ movie.releaseDate }}</p>
+
+            <p class="rating">{{ movie.rating.toFixed(1) }}</p>
           </div>
         </div>
         <button
@@ -76,13 +77,22 @@ const loadMoviesForGenre = async (genre) => {
       }
     )
 
-    // Opdater film for genren
-    genreMovies.value[genreId] = movieResponse.data
-    genreCount.value[genreId] = movieResponse.data.length // Opdater antal film for genren
+    // Filtrér dubletter fra listen baseret på movie.id
+    const newMovies = movieResponse.data
+    const existingMovies = genreMovies.value[genreId] || []
 
-    // Opdater synlige film for genren
+    // Brug et Set til at sikre unikke film
+    const uniqueMovies = [
+      ...new Map(
+        [...existingMovies, ...newMovies].map((m) => [m.id, m])
+      ).values(),
+    ]
+
+    genreMovies.value[genreId] = uniqueMovies
+    genreCount.value[genreId] = uniqueMovies.length
+
     if (!visibleMovies.value[genreId]) {
-      visibleMovies.value[genreId] = movieResponse.data.slice(0, limit) // Vis det første sæt af film
+      visibleMovies.value[genreId] = uniqueMovies.slice(0, limit)
     }
   } catch (error) {
     console.error("Kunne ikke indlæse film for genren:", error)
@@ -161,6 +171,15 @@ onMounted(() => {
 .movie-card p {
   font-size: 14px;
   color: #505050;
+}
+
+.rating {
+  font-weight: 600;
+  border: 1px solid #000000;
+  display: inline-block;
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 /* Responsive styling for small screens */
