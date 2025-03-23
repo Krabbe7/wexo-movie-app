@@ -1,11 +1,11 @@
 <template>
   <div>
-    <AllMoviesInGenre />
+    <MovieDetails />
   </div>
 </template>
 
 <script setup>
-import AllMoviesInGenre from "../components/AllMoviesInGenre.vue"
+import MovieDetails from "../components/MovieDetails.vue"
 </script>
 
 <style lang="scss" scoped></style>
