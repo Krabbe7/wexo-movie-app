@@ -7,6 +7,18 @@ const API_KEY = process.env.TMDB_API_KEY //TMDb API-nøgle
 const BASE_URL = "https://api.themoviedb.org/3"
 
 // Hent genrer
+const allowedGenres = [
+  "Action",
+  "Comedy",
+  "Thriller",
+  "War",
+  "Romance",
+  "Drama",
+  "Crime",
+  "Documentary",
+  "Horror",
+]
+
 const getGenres = async () => {
   try {
     const url = `${BASE_URL}/genre/movie/list?api_key=${API_KEY}&language=en-US`
@@ -17,7 +29,10 @@ const getGenres = async () => {
       throw new Error("Failed to fetch genres from TMDb")
     }
 
-    return response.data.genres // Returner genrerne
+    // Filtrer kun de tilladte genrer
+    return response.data.genres.filter((genre) =>
+      allowedGenres.includes(genre.name)
+    )
   } catch (error) {
     console.error("Error in getGenres:", error.message)
     throw new Error("Oops, something went wrong while fetching genres.")
