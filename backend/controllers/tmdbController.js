@@ -28,4 +28,15 @@ router.get("/moviesbygenre", async (req, res) => {
   }
 })
 
+router.get("/movie/:id", async (req, res) => {
+  try {
+    const movieId = req.params.id // Hent filmens ID fra URL
+    const movie = await tmdbService.getMovieDetails(movieId) // Hent detaljer om filmen fra service
+    res.json(movie) // Returner filmens detaljer
+  } catch (error) {
+    console.error("Error fetching movie details:", error.message)
+    res.status(500).json({ error: "Failed to fetch movie details" })
+  }
+})
+
 export default router

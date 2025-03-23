@@ -72,8 +72,66 @@ const getMoviesByGenre = async (genreId, pages = 5) => {
   }
 }
 
+const getMovieDetails = async (movieId) => {
+  try {
+    const url = `${BASE_URL}/movie/${movieId}?api_key=${API_KEY}&language=en-US&append_to_response=credits,videos`
+    const response = await axios.get(url)
+
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch movie details for ID ${movieId}`)
+    }
+
+    const movie = response.data
+
+    // Hent skuespillere og instruktører
+    const actors = movie.credits.cast.slice(0, 10).map((actor) => ({
+      name: actor.name,
+      character: actor.character,
+      profile: actor.profile_path
+        ? `https://image.tmdb.org/t/p/w500${actor.profile_path}`
+        : null,
+    }))
+
+    const directors = movie.credits.crew
+      .filter((person) => person.job === "Director")
+      .map((director) => director.name)
+
+    // Hent YouTube-trailer
+    const trailer = movie.videos.results.find(
+      (video) => video.type === "Trailer" && video.site === "YouTube"
+    )
+    const trailerUrl = trailer
+      ? `https://www.youtube.com/watch?v=${trailer.key}`
+      : null
+
+    return {
+      id: movie.id,
+      title: movie.title,
+      description: movie.overview,
+      releaseYear: movie.release_date
+        ? movie.release_date.split("-")[0]
+        : "Unknown",
+      poster: movie.poster_path
+        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+        : null,
+      backdrop: movie.backdrop_path
+        ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+        : null,
+      genres: movie.genres.map((genre) => genre.name),
+      rating: movie.vote_average,
+      actors,
+      directors,
+      trailerUrl, // YouTube trailer
+    }
+  } catch (error) {
+    console.error("Error in getMovieDetails:", error.message)
+    throw error
+  }
+}
+
 // Eksporter funktionerne
 export default {
   getGenres,
   getMoviesByGenre,
+  getMovieDetails,
 }
