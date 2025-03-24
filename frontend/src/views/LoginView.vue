@@ -14,13 +14,19 @@
 
 <script setup>
 import { ref } from "vue"
+import { useRouter } from "vue-router"
 import SignupForm from "./../components/SignupForm.vue"
 import Login from "./../components/Login.vue"
 
 const isLogin = ref(true)
+const router = useRouter()
 
 const toggleForm = () => {
-  isLogin.value = !isLogin.value
+  if (isLogin.value) {
+    router.push("/signup")
+  } else {
+    isLogin.value = !isLogin.value
+  }
 }
 </script>
 
