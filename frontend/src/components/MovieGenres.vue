@@ -21,6 +21,15 @@
             <h3>{{ movie.title }}</h3>
 
             <p class="rating">{{ movie.rating.toFixed(1) }}</p>
+
+            <!-- Wishlist-knap -->
+            <button @click.stop="toggleWishlist(movie)">
+              {{
+                isInWishlist(movie.id)
+                  ? "Remove from Wishlist"
+                  : "Add to Wishlist"
+              }}
+            </button>
           </div>
         </div>
         <button
@@ -38,27 +47,65 @@
 import axios from "axios" // Importer axios
 import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
-const router = useRouter()
+import { db, auth } from "../Services/FirebaseConfig"
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore"
 
-const genres = ref([]) // Gemmer genrer
-const genreMovies = ref({}) // Gemmer film for hver genre
-const genreCount = ref({}) // Gemmer antallet af film pr. genre
-const visibleMovies = ref({}) // Gemmer de film, der skal være synlige
-const loading = ref(true) // Indlæsningsstatus
-const limit = 5 // Antal film, der skal indlæses pr. klik
+const router = useRouter()
+const genres = ref([])
+const genreMovies = ref({})
+const genreCount = ref({})
+const visibleMovies = ref({})
+const loading = ref(true)
+const limit = 5
 const page = ref({})
+const wishlist = ref([]) // Brugerens ønskeliste
+
+// Hent brugerens ønskeliste fra Firestore
+const fetchWishlist = async () => {
+  const user = auth.currentUser
+  if (!user) return
+
+  const wishlistRef = doc(db, "wishlists", user.uid)
+  const wishlistSnap = await getDoc(wishlistRef)
+  wishlist.value = wishlistSnap.exists() ? wishlistSnap.data().movies || [] : []
+}
+
+// Tjek om en film er i ønskelisten
+const isInWishlist = (movieId) => {
+  return wishlist.value.some((m) => m.id === movieId)
+}
+
+// Tilføj/fjern film fra ønskelisten
+const toggleWishlist = async (movie) => {
+  const user = auth.currentUser
+  if (!user) return alert("Log in to save movies!")
+
+  const wishlistRef = doc(db, "wishlists", user.uid)
+
+  if (isInWishlist(movie.id)) {
+    await updateDoc(wishlistRef, { movies: arrayRemove(movie) })
+    wishlist.value = wishlist.value.filter((m) => m.id !== movie.id)
+  } else {
+    await updateDoc(wishlistRef, { movies: arrayUnion(movie) })
+    wishlist.value.push(movie)
+  }
+}
 
 // Hent genrer og film fra backend
 const fetchGenresAndMovies = async () => {
   try {
     loading.value = true
-
     // Hent genrer fra backend
     const genreResponse = await axios.get(
       "http://localhost:5000/api/movies/genres"
     )
     genres.value = genreResponse.data // Opdater genrer
-
     // Hent film for alle genrer parallelt
     const genreMoviesPromises = genres.value.map((genre) =>
       loadMoviesForGenre(genre)
@@ -83,14 +130,11 @@ const loadMoviesForGenre = async (genre) => {
       }
     )
 
-    // Filtrér dubletter fra listen baseret på movie.id
-    const newMovies = movieResponse.data
+    // Fjern dubletter ved hjælp af Map
     const existingMovies = genreMovies.value[genreId] || []
-
-    // Brug et Set til at sikre unikke film
     const uniqueMovies = [
       ...new Map(
-        [...existingMovies, ...newMovies].map((m) => [m.id, m])
+        [...existingMovies, ...movieResponse.data].map((m) => [m.id, m])
       ).values(),
     ]
 
@@ -109,7 +153,6 @@ const loadMoviesForGenre = async (genre) => {
 const loadMoreMovies = (genre) => {
   const genreId = genre.id
   const currentPage = page.value[genreId] + 1 // Inkrementér siden for genren
-
   page.value[genreId] = currentPage // Opdater siden for genren
   loadMoviesForGenre(genre) // Indlæs det næste sæt af film
 
@@ -134,6 +177,9 @@ const goToMovieDetails = (movieId) => {
 // Kald hentningsfunktionen, når komponenten bliver monteret
 onMounted(() => {
   fetchGenresAndMovies()
+  auth.onAuthStateChanged((user) => {
+    if (user) fetchWishlist()
+  })
 })
 </script>
 
