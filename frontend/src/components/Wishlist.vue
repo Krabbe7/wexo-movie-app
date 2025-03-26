@@ -44,11 +44,7 @@ const fetchWishlist = async () => {
 // Lyt efter login-ændringer
 onMounted(() => {
   auth.onAuthStateChanged((user) => {
-    if (user) {
-      fetchWishlist()
-    } else {
-      wishlist.value = [] // Nulstil ønskelisten ved logout
-    }
+    if (user) fetchWishlist()
   })
 })
 </script>
