@@ -9,7 +9,7 @@
       <div v-for="movie in wishlist" :key="movie.id" class="movie-card">
         <img :src="movie.poster" alt="Movie Poster" />
         <h3>{{ movie.title }}</h3>
-        <button @click="toggleWishlist(movie)">Remove</button>
+        <WishlistButton :movie="movie" :wishlist="wishlist" />
       </div>
     </div>
   </div>
@@ -18,13 +18,8 @@
 <script setup>
 import { db, auth } from "../Services/FirebaseConfig" // Firebase-import
 import { ref, onMounted } from "vue"
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  arrayUnion,
-  arrayRemove,
-} from "firebase/firestore"
+import { doc, getDoc } from "firebase/firestore"
+import WishlistButton from "./WishlistButton.vue"
 
 const wishlist = ref([]) // Brugerens ønskeliste
 const loading = ref(true)
@@ -46,24 +41,24 @@ const fetchWishlist = async () => {
   loading.value = false
 }
 
-// Tilføj/fjern film fra ønskelisten
-const toggleWishlist = async (movie) => {
-  const user = auth.currentUser
-  if (!user) return alert("Log in to manage your wishlist!")
+// // Tilføj/fjern film fra ønskelisten
+// const toggleWishlist = async (movie) => {
+//   const user = auth.currentUser
+//   if (!user) return alert("Log in to manage your wishlist!")
 
-  const wishlistRef = doc(db, "wishlists", user.uid)
+//   const wishlistRef = doc(db, "wishlists", user.uid)
 
-  // Tjek om filmen allerede er på ønskelisten
-  if (wishlist.value.some((m) => m.id === movie.id)) {
-    // Hvis filmen er på listen, fjern den
-    await updateDoc(wishlistRef, { movies: arrayRemove(movie) })
-    wishlist.value = wishlist.value.filter((m) => m.id !== movie.id) // Opdater lokalt
-  } else {
-    // Hvis filmen ikke er på listen, tilføj den
-    await updateDoc(wishlistRef, { movies: arrayUnion(movie) })
-    wishlist.value.push(movie) // Opdater lokalt
-  }
-}
+//   // Tjek om filmen allerede er på ønskelisten
+//   if (wishlist.value.some((m) => m.id === movie.id)) {
+//     // Hvis filmen er på listen, fjern den
+//     await updateDoc(wishlistRef, { movies: arrayRemove(movie) })
+//     wishlist.value = wishlist.value.filter((m) => m.id !== movie.id) // Opdater lokalt
+//   } else {
+//     // Hvis filmen ikke er på listen, tilføj den
+//     await updateDoc(wishlistRef, { movies: arrayUnion(movie) })
+//     wishlist.value.push(movie) // Opdater lokalt
+//   }
+// }
 
 // Lyt efter login-ændringer
 onMounted(() => {
