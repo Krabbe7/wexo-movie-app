@@ -14,6 +14,7 @@
       <p><strong>Genres:</strong> {{ movie.genres.join(", ") }}</p>
       <p><strong>Rating:</strong> {{ movie.rating }}/10</p>
 
+      <WishlistButton :movie="movie" :wishlist="wishlist" />
       <div v-if="movie.directors.length">
         <p><strong>Director(s):</strong> {{ movie.directors.join(", ") }}</p>
       </div>
@@ -44,10 +45,14 @@
 import { ref, onMounted } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import axios from "axios"
+import WishlistButton from "./WishlistButton.vue"
+import { auth, db } from "../Services/FirebaseConfig"
+import { doc, getDoc } from "firebase/firestore"
 
 const route = useRoute()
 const router = useRouter()
 const movie = ref(null)
+const wishlist = ref([])
 
 const fetchMovieDetails = async () => {
   try {
@@ -60,11 +65,26 @@ const fetchMovieDetails = async () => {
   }
 }
 
+const fetchWishlist = async () => {
+  const user = auth.currentUser
+  if (!user) return
+
+  const wishlistRef = doc(db, "wishlists", user.uid)
+  const wishlistSnap = await getDoc(wishlistRef)
+
+  if (wishlistSnap.exists()) {
+    wishlist.value = wishlistSnap.data().movies || []
+  }
+}
+
 const goBack = () => {
   router.push("/")
 }
 
-onMounted(fetchMovieDetails)
+onMounted(async () => {
+  await fetchMovieDetails()
+  await fetchWishlist()
+})
 </script>
 
 <style scoped>
@@ -126,13 +146,13 @@ button {
   padding: 10px 15px;
   font-size: 16px;
   cursor: pointer;
-  background: #ff5252;
+  background: #474747;
   color: white;
   border: none;
   border-radius: 5px;
 }
 
 button:hover {
-  background: #ff0000;
+  background: #303030;
 }
 </style>

@@ -11,6 +11,7 @@
         <img :src="movie.poster" alt="Movie Poster" />
         <h3>{{ movie.title }}</h3>
         <p class="rating">{{ movie.rating.toFixed(1) }}</p>
+        <WishlistButton :movie="movie" :wishlist="wishlist" />
       </div>
     </div>
   </div>
@@ -20,19 +21,24 @@
 import { ref, onMounted } from "vue"
 import { useRoute } from "vue-router"
 import axios from "axios"
+import WishlistButton from "./WishlistButton.vue"
+import { auth, db } from "../Services/FirebaseConfig"
+import { doc, getDoc } from "firebase/firestore"
 
 const route = useRoute()
 const genreId = ref(route.params.id) // Henter genre-id fra URL
 const genreName = ref("") // Gemmer navnet på genren
 const movies = ref([]) // Film i genren
 const loading = ref(true)
+const wishlist = ref([]) // Ønskeliste
 
 // Hent film for en specifik genre
 const fetchMoviesByGenre = async () => {
   try {
     loading.value = true
+    await fetchWishlist() // Hent wishlist først, så knapperne er korrekte fra start
 
-    // Hent genrens navn fra backend (hvis nødvendigt)
+    // Hent genre-navn
     const genreResponse = await axios.get(
       "http://localhost:5000/api/movies/genres"
     )
@@ -55,7 +61,24 @@ const fetchMoviesByGenre = async () => {
   }
 }
 
-onMounted(fetchMoviesByGenre)
+// Hent ønskeliste fra Firestore
+const fetchWishlist = async () => {
+  const user = auth.currentUser
+  if (!user) return
+
+  const wishlistRef = doc(db, "wishlists", user.uid)
+  const wishlistSnap = await getDoc(wishlistRef)
+
+  if (wishlistSnap.exists()) {
+    wishlist.value = wishlistSnap.data().movies || []
+  }
+}
+
+// Hent både film og ønskeliste når komponenten mountes
+onMounted(async () => {
+  await fetchMoviesByGenre()
+  await fetchWishlist()
+})
 </script>
 
 <style scoped>

@@ -23,13 +23,7 @@
             <p class="rating">{{ movie.rating.toFixed(1) }}</p>
 
             <!-- Wishlist-knap -->
-            <button @click.stop="toggleWishlist(movie)">
-              {{
-                isInWishlist(movie.id)
-                  ? "Remove from Wishlist"
-                  : "Add to Wishlist"
-              }}
-            </button>
+            <WishlistButton :movie="movie" :wishlist="wishlist" />
           </div>
         </div>
         <button
@@ -48,13 +42,8 @@ import axios from "axios" // Importer axios
 import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
 import { db, auth } from "../Services/FirebaseConfig"
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  arrayUnion,
-  arrayRemove,
-} from "firebase/firestore"
+import { doc, getDoc } from "firebase/firestore"
+import WishlistButton from "./WishlistButton.vue"
 
 const router = useRouter()
 const genres = ref([])
@@ -74,27 +63,6 @@ const fetchWishlist = async () => {
   const wishlistRef = doc(db, "wishlists", user.uid)
   const wishlistSnap = await getDoc(wishlistRef)
   wishlist.value = wishlistSnap.exists() ? wishlistSnap.data().movies || [] : []
-}
-
-// Tjek om en film er i ønskelisten
-const isInWishlist = (movieId) => {
-  return wishlist.value.some((m) => m.id === movieId)
-}
-
-// Tilføj/fjern film fra ønskelisten
-const toggleWishlist = async (movie) => {
-  const user = auth.currentUser
-  if (!user) return alert("Log in to save movies!")
-
-  const wishlistRef = doc(db, "wishlists", user.uid)
-
-  if (isInWishlist(movie.id)) {
-    await updateDoc(wishlistRef, { movies: arrayRemove(movie) })
-    wishlist.value = wishlist.value.filter((m) => m.id !== movie.id)
-  } else {
-    await updateDoc(wishlistRef, { movies: arrayUnion(movie) })
-    wishlist.value.push(movie)
-  }
 }
 
 // Hent genrer og film fra backend
