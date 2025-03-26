@@ -7,6 +7,7 @@ import {
   signOut,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
 } from "@firebase/auth"
 
 const firebaseConfig = {
@@ -22,6 +23,7 @@ const app = initializeApp(firebaseConfig)
 // Initialize en instanse af Firebase Authentication
 const auth = getAuth(app)
 const db = getFirestore(app)
+
 export const signup = async (email, password) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(
@@ -34,10 +36,14 @@ export const signup = async (email, password) => {
     if (error.code === "auth/email-already-in-use") {
       return {
         success: false,
-        message: "This email is already in use. Please use a different email.",
+        message:
+          "Denne e-mail er allerede i brug. Brug venligst en anden e-mail.",
       }
     } else {
-      return { success: false, message: "Signup failed, please try again." }
+      return {
+        success: false,
+        message: "Oprettelse af bruger mislykkedes, prøv igen.",
+      }
     }
   }
 }
@@ -51,7 +57,19 @@ export const login = async (email, password) => {
     )
     return { success: true, user: userCredential.user }
   } catch (error) {
-    return { success: false, message: error.message }
+    return { success: false, message: error.message, code: error.code }
+  }
+}
+
+// Funktion til at tjekke, om en e-mail eksisterer i Firebase Authentication
+export const checkIfEmailExists = async (email) => {
+  const auth = getAuth()
+  try {
+    const methods = await fetchSignInMethodsForEmail(auth, email)
+    return methods.length > 0 // Hvis listen er tom, betyder det, at e-mailen ikke er oprettet
+  } catch (error) {
+    console.error("Fejl ved tjek af e-mail:", error)
+    return false
   }
 }
 

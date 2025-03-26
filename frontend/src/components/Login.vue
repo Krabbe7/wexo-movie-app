@@ -20,12 +20,13 @@
 
 <script setup>
 import { ref } from "vue"
-import { login } from "../Services/FirebaseConfig"
+import { login, checkIfEmailExists } from "../Services/FirebaseConfig"
 import { useAuthStore } from "../stores/authStore"
 
 const authStore = useAuthStore()
 const email = ref("")
 const password = ref("")
+const emailRegEx = /^[\w-.]+@([\w-]+.)+[\w-]{2,4}$/
 const errorMessage = ref("")
 const successMessage = ref("")
 
@@ -35,7 +36,19 @@ const handleLogin = async () => {
     authStore.userEmail = result.user.email
     successMessage.value = `User ${result.user.email} logged in successfully!`
   } else {
-    errorMessage.value = result.message
+    if (!emailRegEx.test(email.value)) {
+      errorMessage.value =
+        "Ugyldig e-mailadresse. Sørg for at den er korrekt skrevet (fx brugernavn@domæne.com)."
+      return
+    }
+
+    // Tjek om e-mailen er oprettet i Firebase
+    const emailExists = await checkIfEmailExists(email.value)
+    if (!emailExists) {
+      errorMessage.value =
+        "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen."
+      return
+    }
   }
 }
 </script>

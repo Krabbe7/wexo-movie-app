@@ -29,7 +29,7 @@ watchEffect(() => {
 
 const toggleWishlist = async () => {
   const user = auth.currentUser
-  if (!user) return alert("Please log in to manage your wishlist")
+  if (!user) return alert("Log venligst ind for at administrere din ønskeliste")
 
   const wishlistRef = doc(db, "wishlists", user.uid)
 

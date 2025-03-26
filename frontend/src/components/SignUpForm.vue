@@ -29,11 +29,34 @@ const password = ref("")
 const errorMessage = ref("")
 const successMessage = ref("")
 
+const emailRegEx = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/
+
+const passwordRegEx = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/
+
 const handleSignup = async () => {
+  errorMessage.value = ""
+  successMessage.value = ""
+
+  // Valider e-mail
+  if (!emailRegEx.test(email.value)) {
+    errorMessage.value =
+      "Ugyldig e-mailadresse. Sørg for at den er korrekt skrevet (fx brugernavn@domæne.com)."
+    return
+  }
+
+  // Valider adgangskode (mindst 6 tegn, både bogstaver og tal)
+  if (!passwordRegEx.test(password.value)) {
+    errorMessage.value =
+      "Adgangskoden skal være mindst 6 tegn og indeholde både bogstaver og tal."
+    return
+  }
+
   const result = await signup(email.value, password.value)
+
   if (result.success) {
     authStore.userEmail = result.user.email
-    successMessage.value = `User ${result.user.email} created successfully!`
+    successMessage.value = `Bruger med email: ${result.user.email} oprettet succesfuldt`
+    alert("Du er nu oprettet som bruger")
   } else {
     errorMessage.value = result.message
   }

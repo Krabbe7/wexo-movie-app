@@ -61,7 +61,7 @@ const fetchMovieDetails = async () => {
     )
     movie.value = response.data
   } catch (error) {
-    console.error("Error fetching movie details:", error)
+    console.error("Fejl ved hentning af filmdetaljer:", error)
   }
 }
 
