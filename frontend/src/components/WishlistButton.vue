@@ -1,6 +1,8 @@
 <template>
-  <button @click.stop="toggleWishlist">
-    {{ isInWishlist ? "Remove from Wishlist" : "Add to Wishlist" }}
+  <button @click.stop="toggleWishlist" class="wishlist-btn">
+    <div class="wishlist-icon">
+      <i :class="isInWishlist ? 'fas fa-bookmark' : 'far fa-bookmark'"></i>
+    </div>
   </button>
 </template>
 
@@ -70,3 +72,40 @@ const toggleWishlist = async () => {
   }
 }
 </script>
+
+<style scoped>
+.wishlist-btn {
+  position: absolute;
+  top: 5px;
+  left: 0px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.wishlist-icon {
+  width: 30px;
+  height: 30px;
+  background: rgba(0, 0, 0, 0.7); /* Mørk baggrund */
+  border-radius: 8px; /* Bløde hjørner */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.wishlist-btn:hover .wishlist-icon {
+  background: rgba(0, 0, 0, 0.9); /* Lidt lysere på hover */
+  transform: scale(1.1);
+}
+
+.wishlist-icon i {
+  font-size: 15px;
+  color: white;
+  transition: color 0.3s;
+}
+
+.fas.fa-bookmark {
+  color: #f39c12; /* Guld-farvet når tilføjet */
+}
+</style>

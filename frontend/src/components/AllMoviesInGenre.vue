@@ -8,10 +8,19 @@
 
     <div v-else class="movie-list">
       <div v-for="movie in movies" :key="movie.id" class="movie-card">
+        <!-- Wishlist-knap i øverste venstre hjørne -->
+        <div class="wishlist-button">
+          <WishlistButton :movie="movie" :wishlist="wishlist" />
+        </div>
+
+        <!-- Filmplakat -->
         <img :src="movie.poster" alt="Movie Poster" />
-        <h3>{{ movie.title }}</h3>
-        <p class="rating">{{ movie.rating.toFixed(1) }}</p>
-        <WishlistButton :movie="movie" :wishlist="wishlist" />
+
+        <!-- Rating og titel under billedet -->
+        <div class="movie-info">
+          <p class="rating">{{ movie.rating.toFixed(1) }}</p>
+          <h3>{{ movie.title }}</h3>
+        </div>
       </div>
     </div>
   </div>
@@ -80,42 +89,3 @@ onMounted(async () => {
   await fetchWishlist()
 })
 </script>
-
-<style scoped>
-/* Style for movie list */
-.movie-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px;
-}
-
-/* Style for movie cards */
-.movie-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  padding: 10px;
-  text-align: center;
-  transition: transform 0.3s ease;
-}
-
-.movie-card img {
-  width: 100%;
-  height: auto;
-  border-radius: 4px;
-  margin-bottom: 10px;
-}
-
-.movie-card:hover {
-  transform: scale(1.05);
-}
-
-.rating {
-  font-weight: 600;
-  border: 1px solid #000;
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-</style>

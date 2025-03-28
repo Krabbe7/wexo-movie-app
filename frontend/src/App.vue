@@ -116,11 +116,13 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
+<style>
 /* Generel styling for navbar */
+
 body {
   margin: 0;
   padding: 0;
+  background-color: #1e203c;
 }
 
 .header-wrapper {
@@ -154,21 +156,6 @@ body {
   justify-content: flex-end;
   align-items: center;
   flex: 1;
-}
-
-button {
-  margin: 0 10px;
-  padding: 8px 16px;
-  cursor: pointer;
-  border: none;
-  background-color: #4caf50;
-  color: white;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-button:hover {
-  background-color: #45a049;
 }
 
 /* Avatar container */

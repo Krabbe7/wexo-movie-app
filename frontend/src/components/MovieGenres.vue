@@ -17,13 +17,19 @@
             class="movie-card"
             @click="goToMovieDetails(movie.id)"
           >
+            <!-- Wishlist-knap i øverste venstre hjørne -->
+            <div class="wishlist-button">
+              <WishlistButton :movie="movie" :wishlist="wishlist" />
+            </div>
+
+            <!-- Filmplakat -->
             <img :src="movie.poster" alt="Movie Poster" />
-            <h3>{{ movie.title }}</h3>
 
-            <p class="rating">{{ movie.rating.toFixed(1) }}</p>
-
-            <!-- Wishlist-knap -->
-            <WishlistButton :movie="movie" :wishlist="wishlist" />
+            <!-- Rating og titel under billedet -->
+            <div class="movie-info">
+              <p class="rating">{{ movie.rating.toFixed(1) }}</p>
+              <h3>{{ movie.title }}</h3>
+            </div>
           </div>
         </div>
         <button
@@ -36,7 +42,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import axios from "axios" // Importer axios
 import { ref, onMounted } from "vue"
@@ -157,81 +162,7 @@ onMounted(() => {
   margin-bottom: 30px;
 }
 
-/* Style for movie cards container */
-.movie-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px;
-}
-
 /* Style for individual movie cards */
-.movie-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  padding: 10px;
-  text-align: center;
-  transition: transform 0.3s ease;
-}
-
-/* Style for movie card images */
-.movie-card img {
-  width: 100%;
-  height: auto;
-  border-radius: 4px;
-  margin-bottom: 10px;
-}
-
-/* Hover effect for movie card */
-.movie-card:hover {
-  transform: scale(1.05);
-}
-
-/* Style for movie card title and release date */
-.movie-card h3 {
-  font-size: 16px;
-  font-weight: bold;
-  margin: 10px 0;
-  color: #333;
-}
-
-.movie-card p {
-  font-size: 14px;
-  color: #505050;
-}
-
-.rating {
-  font-weight: 600;
-  border: 1px solid #000000;
-  display: inline-block;
-  width: fit-content;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
 
 /* Responsive styling for small screens */
-@media (max-width: 768px) {
-  .movie-card h3 {
-    font-size: 14px;
-  }
-
-  .movie-card p {
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .movie-card {
-    padding: 8px;
-  }
-
-  .movie-card h3 {
-    font-size: 12px;
-  }
-
-  .movie-card p {
-    font-size: 10px;
-  }
-}
 </style>

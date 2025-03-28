@@ -7,9 +7,19 @@
 
     <div v-else class="movie-list">
       <div v-for="movie in wishlist" :key="movie.id" class="movie-card">
+        <!-- Wishlist-knap i øverste venstre hjørne -->
+        <div class="wishlist-button">
+          <WishlistButton :movie="movie" :wishlist="wishlist" />
+        </div>
+
+        <!-- Filmplakat -->
         <img :src="movie.poster" alt="Movie Poster" />
-        <h3>{{ movie.title }}</h3>
-        <WishlistButton :movie="movie" :wishlist="wishlist" />
+
+        <!-- Rating og titel under billedet -->
+        <div class="movie-info">
+          <p class="rating">{{ movie.rating.toFixed(1) }}</p>
+          <h3>{{ movie.title }}</h3>
+        </div>
       </div>
     </div>
   </div>
@@ -52,31 +62,5 @@ onMounted(() => {
 <style scoped>
 .wishlist {
   text-align: center;
-}
-
-.movie-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px;
-}
-
-.movie-card {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 10px;
-  text-align: center;
-}
-
-.movie-card img {
-  width: 100%;
-  border-radius: 4px;
-}
-
-button {
-  background-color: red;
-  color: white;
-  border: none;
-  padding: 8px;
-  cursor: pointer;
 }
 </style>

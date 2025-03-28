@@ -1,0 +1,89 @@
+/* Style for individual movie cards */
+.movie-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 40px;
+}
+
+/* Ens højde på alle movie cards */
+.movie-card {
+    position: relative;
+    border-radius: 7px;
+    overflow: hidden;
+    width: 200px;
+    text-align: center;
+    color: white;
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    /* Sørger for at indholdet strækker sig jævnt */
+    height: 100%;
+    /* Gør alle cards ens i højden */
+}
+
+.movie-card:hover {
+    transform: scale(1.05);
+}
+
+/* Filmplakat */
+.movie-card img {
+    width: 100%;
+    height: auto;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    flex-grow: 1;
+    /* Sørger for, at billedet tager den nødvendige plads */
+}
+
+/* Sikrer, at info-sektionen altid har samme størrelse */
+.movie-info {
+    padding: 10px 10px 20px 10px;
+    background-color: #2e3a59;
+    text-align: center;
+    min-height: 60px;
+    /* Fast højde så alle kort justeres */
+}
+
+.movie-info h3 {
+    font-size: 16px;
+    margin: 5px 0 0;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Rating */
+.rating {
+    display: inline-block;
+    background-color: #f39c12;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+@media (max-width: 768px) {
+    .movie-card h3 {
+        font-size: 14px;
+    }
+
+    .movie-card p {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .movie-card {
+        padding: 8px;
+    }
+
+    .movie-card h3 {
+        font-size: 12px;
+    }
+
+    .movie-card p {
+        font-size: 10px;
+    }
+}
