@@ -8,7 +8,9 @@
 import { ref, watchEffect } from "vue"
 import { db, auth } from "../Services/FirebaseConfig"
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore"
+import { useRouter } from "vue-router"
 
+const router = useRouter()
 const props = defineProps({
   movie: Object,
   wishlist: Array,
@@ -29,7 +31,10 @@ watchEffect(() => {
 
 const toggleWishlist = async () => {
   const user = auth.currentUser
-  if (!user) return alert("Log venligst ind for at administrere din ønskeliste")
+  if (!user) {
+    alert("Log venligst ind for at administrere din ønskeliste")
+    return router.push({ name: "login" }) // Stop funktionen her
+  }
 
   const wishlistRef = doc(db, "wishlists", user.uid)
 

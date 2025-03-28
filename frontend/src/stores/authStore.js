@@ -1,25 +1,33 @@
 import { defineStore } from "pinia"
+import { auth } from "../Services/FirebaseConfig"
+import { onAuthStateChanged } from "firebase/auth"
 import { ref } from "vue"
-import { useRouter } from "vue-router"
-import { onAuthChange, logout } from "../Services/FirebaseConfig"
+import { useRouter } from "vue-router" // <--- IMPORTER ROUTER
 
 export const useAuthStore = defineStore("auth", () => {
   const userEmail = ref(null)
-  const router = useRouter() // Vue Router til navigation
+  const router = useRouter() // <--- INITIALISÉR ROUTER
 
-  onAuthChange((email) => {
-    userEmail.value = email
-
-    if (email) {
-      router.push({ name: "wishlist" }) // Redirect til wishlist efter login
-    }
-  })
-
-  const signOutUser = async () => {
-    await logout()
-    userEmail.value = null
-    router.push({ name: "home" }) // Redirect til forsiden efter logout
+  const initializeAuth = () => {
+    return new Promise((resolve) => {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          userEmail.value = user.email
+          router.push({ name: "wishlist" }) // <--- Redirect til wishlist, hvis logget ind
+        } else {
+          userEmail.value = null
+          router.push({ name: "home" }) // <--- Redirect til home, hvis logget ud
+        }
+        resolve()
+      })
+    })
   }
 
-  return { userEmail, signOutUser }
+  const signOutUser = async () => {
+    await auth.signOut()
+    userEmail.value = null
+    router.push({ name: "home" }) // <--- Redirect til home efter logout
+  }
+
+  return { userEmail, initializeAuth, signOutUser }
 })
