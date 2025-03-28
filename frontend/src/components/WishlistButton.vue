@@ -7,7 +7,14 @@
 <script setup>
 import { ref, watchEffect } from "vue"
 import { db, auth } from "../Services/FirebaseConfig"
-import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore"
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
@@ -30,25 +37,36 @@ watchEffect(() => {
 })
 
 const toggleWishlist = async () => {
-  const user = auth.currentUser
-  if (!user) {
-    alert("Log venligst ind for at administrere din ønskeliste")
-    return router.push({ name: "login" }) // Stop funktionen her
+  try {
+    const user = auth.currentUser
+    if (!user) {
+      router.push({ name: "login" })
+      alert("Log venligst ind for at administrere din ønskeliste")
+      return
+    }
+
+    const wishlistRef = doc(db, "wishlists", user.uid)
+    const wishlistSnap = await getDoc(wishlistRef)
+
+    if (!wishlistSnap.exists()) {
+      await setDoc(wishlistRef, { movies: [] })
+    }
+
+    if (isInWishlist.value) {
+      await updateDoc(wishlistRef, { movies: arrayRemove(props.movie) })
+      props.wishlist.splice(
+        props.wishlist.findIndex((m) => m.id === props.movie.id),
+        1
+      )
+    } else {
+      await updateDoc(wishlistRef, { movies: arrayUnion(props.movie) })
+      props.wishlist.push(props.movie)
+    }
+
+    checkIfInWishlist()
+  } catch (error) {
+    console.error("Fejl ved opdatering af ønskeliste:", error)
+    alert("Der opstod en fejl. Prøv igen senere.")
   }
-
-  const wishlistRef = doc(db, "wishlists", user.uid)
-
-  if (isInWishlist.value) {
-    await updateDoc(wishlistRef, { movies: arrayRemove(props.movie) })
-    props.wishlist.splice(
-      props.wishlist.findIndex((m) => m.id === props.movie.id),
-      1
-    )
-  } else {
-    await updateDoc(wishlistRef, { movies: arrayUnion(props.movie) })
-    props.wishlist.push(props.movie)
-  }
-
-  checkIfInWishlist()
 }
 </script>
