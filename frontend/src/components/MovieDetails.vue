@@ -1,58 +1,65 @@
 <template>
   <div v-if="movie" class="movie-details">
+    <!-- Backdrop med titel og poster -->
     <div
       class="backdrop"
       :style="{ backgroundImage: `url(${movie.backdrop})` }"
-    ></div>
-
-    <div class="content">
-      <h1>{{ movie.title }}</h1>
-      <img :src="movie.poster" alt="Movie Poster" class="poster" />
-
-      <p><strong>Release Year:</strong> {{ movie.releaseYear }}</p>
-      <p><strong>Description:</strong> {{ movie.description }}</p>
-      <p><strong>Genres:</strong> {{ movie.genres.join(", ") }}</p>
-      <p><strong>Rating:</strong> {{ movie.rating }}/10</p>
-
-      <WishlistButton :movie="movie" :wishlist="wishlist" />
-      <div v-if="movie.directors.length">
-        <p><strong>Director(s):</strong> {{ movie.directors.join(", ") }}</p>
+    >
+      <WishlistButton
+        class="wishlist-btn-description"
+        :movie="movie"
+        :wishlist="wishlist"
+      />
+      <div class="backdrop-content">
+        <h1 class="titel-movie-description">{{ movie.title }}</h1>
+        <img :src="movie.poster" alt="Movie Poster" class="poster" />
       </div>
+    </div>
 
-      <div class="actors">
-        <h3>Actors:</h3>
-        <div v-for="actor in movie.actors" :key="actor.name" class="actor-card">
-          <img v-if="actor.profile" :src="actor.profile" :alt="actor.name" />
-          <p>{{ actor.name }} as {{ actor.character }}</p>
+    <!-- Trailer og detaljer under backdroppet -->
+    <div class="details-container">
+      <div class="movie-description">
+        <p>{{ movie.description }}</p>
+        <p><strong>Release Year:</strong> {{ movie.releaseYear }}</p>
+        <p><strong>Genres:</strong> {{ movie.genres.join(", ") }}</p>
+        <p><strong>Rating:</strong> {{ movie.rating }}/10</p>
+        <div v-if="movie.directors.length">
+          <p><strong>Director(s):</strong> {{ movie.directors.join(", ") }}</p>
         </div>
       </div>
-
       <div v-if="movie.trailerUrl" class="trailer">
-        <h3>Trailer</h3>
         <iframe
           :src="`${movie.trailerUrl.replace('watch?v=', 'embed/')}`"
           frameborder="0"
           allowfullscreen
         ></iframe>
       </div>
+    </div>
 
-      <button @click="goBack">⬅ Go Back</button>
+    <div class="content">
+      <h2>Actors</h2>
+      <div class="actors">
+        <div v-for="actor in movie.actors" :key="actor.name" class="actor-card">
+          <img v-if="actor.profile" :src="actor.profile" :alt="actor.name" />
+          <p>{{ actor.name }} as {{ actor.character }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
-import { useRoute, useRouter } from "vue-router"
+import { ref, onMounted, watchEffect } from "vue"
+import { useRoute } from "vue-router"
 import axios from "axios"
 import WishlistButton from "./WishlistButton.vue"
 import { auth, db } from "../Services/FirebaseConfig"
 import { doc, getDoc } from "firebase/firestore"
 
-const route = useRoute()
-const router = useRouter()
-const movie = ref(null)
 const wishlist = ref([])
+
+const route = useRoute()
+const movie = ref(null)
 
 const fetchMovieDetails = async () => {
   try {
@@ -77,9 +84,13 @@ const fetchWishlist = async () => {
   }
 }
 
-const goBack = () => {
-  router.push("/")
-}
+watchEffect(() => {
+  if (movie.value) {
+    movie.value.isInWishlist = wishlist.value.some(
+      (m) => m.id === movie.value.id
+    )
+  }
+})
 
 onMounted(async () => {
   await fetchMovieDetails()
@@ -94,65 +105,147 @@ onMounted(async () => {
   position: relative;
 }
 
+/* Backdrop med flexbox layout */
 .backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
   height: 50vh;
   background-size: cover;
   background-position: center;
-  filter: brightness(0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.content {
-  position: relative;
-  padding: 20px;
+.backdrop::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000af;
+  z-index: 1;
+}
+
+.wishlist-btn-description {
   z-index: 2;
 }
 
-.poster {
-  width: 300px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-}
-
-.actors {
+.backdrop-content {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.actor-card {
-  width: 120px;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
   text-align: center;
 }
 
-.actor-card img {
+.titel-movie-description {
+  margin: 0 0 40px 0;
+}
+
+.poster {
+  max-width: 250px;
   width: 100%;
+  height: auto;
   border-radius: 10px;
+  box-shadow: 0 0 10px #ffffff80;
+}
+
+/* Container for trailer og film-info */
+.details-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 70px;
+}
+
+.movie-description,
+.trailer {
+  flex: 1;
+  max-width: 50%;
+  box-sizing: border-box;
+}
+
+.movie-description {
+  text-align: left;
+  padding-right: 20px;
+}
+
+.movie-description p:first-of-type {
+  margin-top: 0;
+}
+
+.movie-description p:not(:last-child) {
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .trailer iframe {
-  width: 560px;
-  height: 315px;
+  width: 100%; /* Gør iframe responsiv */
+  height: 315px; /* Højden holdes fast, men bredden tilpasses */
+}
+.content h2 {
+  margin: 70px 0;
+}
+/* Skuespillere (Actors) - brug af CSS Grid */
+.actors {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(120px, 1fr)
+  ); /* Grid layout med min. 120px bredde pr. skuespiller */
+  gap: 20px;
   margin-top: 20px;
+  width: 100%; /* Fylder hele bredden */
 }
 
-button {
-  margin-top: 20px;
-  padding: 10px 15px;
-  font-size: 16px;
-  cursor: pointer;
-  background: #474747;
-  color: white;
-  border: none;
-  border-radius: 5px;
+.actor-card {
+  width: 120px; /* Fast bredde */
+  height: 180px; /* Fast højde */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  margin: 0 auto; /* Centerer kortet */
 }
 
-button:hover {
-  background: #303030;
+.actor-card img {
+  width: 100%; /* Billedet fylder bredden af kortet */
+  height: auto;
+  border-radius: 10px;
+  margin-bottom: 10px; /* Afstand mellem billede og navn */
+}
+
+.actor-card p {
+  font-size: 14px; /* Juster fontstørrelsen */
+}
+
+/* Responsiv tilpasning for små skærme */
+@media (max-width: 768px) {
+  .details-container {
+    flex-direction: column; /* Stak dem vertikalt på små skærme */
+    align-items: center;
+    text-align: center;
+  }
+
+  .movie-description,
+  .trailer {
+    max-width: 100%; /* Begge sektioner fylder hele bredden på små skærme */
+    padding-right: 0; /* Fjerner eventuel padding til trailer */
+  }
+
+  .trailer iframe {
+    height: 200px; /* Gør iframe mindre på små skærme */
+  }
+
+  .actors {
+    grid-template-columns: 1fr 1fr; /* På små skærme stak dem vertikalt */
+  }
 }
 </style>

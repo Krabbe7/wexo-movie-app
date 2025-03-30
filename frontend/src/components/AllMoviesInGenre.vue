@@ -2,7 +2,7 @@
   <div class="container">
     <h1>{{ genreName }} Movies</h1>
 
-    <div v-if="loading">Loading...</div>
+    <div class="loading-color" v-if="loading">Loading...</div>
 
     <div v-else-if="movies.length === 0">No movies found in this genre.</div>
 

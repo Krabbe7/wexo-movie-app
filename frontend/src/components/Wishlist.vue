@@ -1,8 +1,8 @@
 <template>
   <div class="wishlist">
-    <h1>My Wishlist</h1>
+    <h1>Min ønskeliste</h1>
 
-    <div v-if="loading">Loading...</div>
+    <div class="loading-color" v-if="loading">Loading...</div>
     <div v-else-if="wishlist.length === 0">Your wishlist is empty.</div>
 
     <div v-else class="movie-list">

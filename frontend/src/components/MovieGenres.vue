@@ -1,8 +1,8 @@
 <template>
   <div class="container">
-    <h1>Film genre</h1>
+    <h1>Filmgenre</h1>
 
-    <div v-if="loading">Loading...</div>
+    <div class="loading-color" v-if="loading">Loading...</div>
 
     <div v-else>
       <div v-for="genre in genres" :key="genre.id" class="genre-section">
@@ -56,7 +56,7 @@ const genreMovies = ref({})
 const genreCount = ref({})
 const visibleMovies = ref({})
 const loading = ref(true)
-const limit = 5
+const limit = 7
 const page = ref({})
 const wishlist = ref([]) // Brugerens ønskeliste
 
@@ -157,8 +157,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.container {
-  padding: 0 20px;
+.loading-color {
+  color: #ffffff;
+  text-align: center;
+  margin-top: 70px;
+  font-size: 20px;
 }
 h1,
 h2 {
@@ -166,11 +169,14 @@ h2 {
 }
 h1 {
   text-align: center;
-}
-h2 {
   margin-top: 70px;
 }
-
+h2 {
+  margin-top: 50px;
+}
+.genre-section {
+  margin: 10px 0;
+}
 /* Style for individual movie cards */
 
 /* Responsive styling for small screens */

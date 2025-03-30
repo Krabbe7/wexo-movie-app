@@ -208,7 +208,7 @@ ul {
 }
 
 .main-container {
-  max-width: 2000px;
+  max-width: 1400px;
   width: 100%;
   box-sizing: border-box;
   margin: 0 auto;
