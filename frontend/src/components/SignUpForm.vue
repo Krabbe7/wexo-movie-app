@@ -1,6 +1,6 @@
 <template>
   <div class="signup-form-container">
-    <h2>Sign up</h2>
+    <h1 class="Signup-titel">Sign up</h1>
     <form class="signup-form" @submit.prevent="handleSignup">
       <div class="form-input">
         <label>Email:</label>
@@ -11,8 +11,13 @@
         <input type="password" v-model="password" required />
       </div>
 
-      <button type="submit">Sign Up</button>
+      <button type="submit">Opret bruger</button>
     </form>
+    <p>
+      Har du allerede en bruger?<span class="LoginLink" @click="goToLogin">
+        Log ind her</span
+      >
+    </p>
     <p v-if="errorMessage">{{ errorMessage }}</p>
     <p v-if="successMessage">{{ successMessage }}</p>
   </div>
@@ -22,6 +27,9 @@
 import { ref } from "vue"
 import { signup } from "../Services/FirebaseConfig"
 import { useAuthStore } from "../stores/authStore"
+import { useRouter } from "vue-router"
+
+const router = useRouter()
 
 const authStore = useAuthStore()
 const email = ref("")
@@ -61,4 +69,23 @@ const handleSignup = async () => {
     errorMessage.value = result.message
   }
 }
+
+const goToLogin = () => {
+  router.push({ name: "login" })
+}
 </script>
+<style>
+.Signup-titel {
+  color: #000000;
+  margin-top: 20px;
+}
+.LoginLink {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #0000ff;
+}
+
+.LoginLink:hover {
+  color: #0404c7;
+}
+</style>

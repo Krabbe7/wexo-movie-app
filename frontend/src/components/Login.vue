@@ -1,6 +1,6 @@
 <template>
   <div class="login-form-container">
-    <h2>Login</h2>
+    <h1 class="Login-titel">Login</h1>
     <form class="login-form" @submit.prevent="handleLogin">
       <div class="form-input">
         <label>Email:</label>
@@ -70,6 +70,11 @@ const goToSignUp = () => {
 </script>
 
 <style>
+.Login-titel {
+  color: #000000;
+  margin-top: 20px;
+}
+
 .OpretLink {
   text-decoration: underline;
   cursor: pointer;

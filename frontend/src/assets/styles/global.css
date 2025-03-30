@@ -2,12 +2,34 @@
     padding: 0 20px;
 }
 
+.loading-color {
+    color: #ffffff;
+    text-align: center;
+    margin-top: 70px;
+    font-size: 20px;
+}
+
+h1,
+h2 {
+    color: #ffffff;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 70px;
+}
+
+h2 {
+    margin-top: 50px;
+}
+
 /* Style for individual movie cards */
 .movie-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     column-gap: 70px;
     row-gap: 50px;
+    margin: 40px 0;
 
 
 }
@@ -84,6 +106,7 @@
     text-align: center;
     max-width: 400px;
     margin: 0 auto;
+    margin-top: 70px;
 }
 
 .form-input {
