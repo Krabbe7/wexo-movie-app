@@ -1,5 +1,5 @@
 <template>
-  <div class="movies-in-genre">
+  <div class="container">
     <h1>{{ genreName }} Movies</h1>
 
     <div v-if="loading">Loading...</div>

@@ -1,6 +1,6 @@
 <template>
-  <div class="home">
-    <h1>Movie Genres</h1>
+  <div class="container">
+    <h1>Film genre</h1>
 
     <div v-if="loading">Loading...</div>
 
@@ -157,9 +157,18 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Style for the genre section */
-.genre-section {
-  margin-bottom: 30px;
+.container {
+  padding: 0 20px;
+}
+h1,
+h2 {
+  color: #ffffff;
+}
+h1 {
+  text-align: center;
+}
+h2 {
+  margin-top: 70px;
 }
 
 /* Style for individual movie cards */

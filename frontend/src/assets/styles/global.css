@@ -1,11 +1,17 @@
+.container {
+    padding: 0 20px;
+}
+
 /* Style for individual movie cards */
 .movie-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 40px;
+    column-gap: 70px;
+    row-gap: 50px;
+
+
 }
 
-/* Ens højde på alle movie cards */
 .movie-card {
     position: relative;
     border-radius: 7px;
@@ -16,32 +22,32 @@
     transition: transform 0.3s ease-in-out;
     display: flex;
     flex-direction: column;
-    /* Sørger for at indholdet strækker sig jævnt */
     height: 100%;
-    /* Gør alle cards ens i højden */
+
+
 }
 
 .movie-card:hover {
     transform: scale(1.05);
 }
 
-/* Filmplakat */
+
 .movie-card img {
     width: 100%;
     height: auto;
     border-top-left-radius: 7px;
     border-top-right-radius: 7px;
     flex-grow: 1;
-    /* Sørger for, at billedet tager den nødvendige plads */
+
 }
 
-/* Sikrer, at info-sektionen altid har samme størrelse */
+
 .movie-info {
     padding: 10px 10px 20px 10px;
     background-color: #2e3a59;
     text-align: center;
     min-height: 60px;
-    /* Fast højde så alle kort justeres */
+
 }
 
 .movie-info h3 {
@@ -64,26 +70,62 @@
     margin-bottom: 5px;
 }
 
-@media (max-width: 768px) {
-    .movie-card h3 {
-        font-size: 14px;
-    }
+@media (max-width: 768px) {}
 
-    .movie-card p {
-        font-size: 12px;
-    }
+@media (max-width: 480px) {}
+
+/*Sign up/login*/
+.login-form-container,
+.signup-form-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
-@media (max-width: 480px) {
-    .movie-card {
-        padding: 8px;
-    }
+.form-input {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
 
-    .movie-card h3 {
-        font-size: 12px;
-    }
+.form-input label {
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 5px;
+}
 
-    .movie-card p {
-        font-size: 10px;
-    }
+.form-input input {
+    width: 100%;
+    /* Inputfelterne fylder hele bredden af containeren */
+    box-sizing: border-box;
+    /* Sørger for at padding er inkluderet i bredden */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.LoginOpretButton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+button {
+    margin: 0;
+    padding: 10px;
+    background-color: #404f74;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #333f5e;
 }

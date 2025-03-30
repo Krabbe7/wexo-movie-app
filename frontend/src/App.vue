@@ -14,58 +14,50 @@
       <div class="center">
         <ul v-if="!isMobile">
           <li @click="goToHome">Hjem</li>
-          <!-- <template v-if="authStore.userEmail">
-            <li @click="goToWishlist">Min ønskeliste</li>
-          </template> -->
           <li>Om os</li>
           <li>Kontakt</li>
         </ul>
       </div>
 
       <div class="right">
-        <!-- Avatar-knap (altid synlig) -->
-        <div class="avatar-container" @click="handleAvatarClick">
-          <img src="./assets/avatar.png" alt="User Avatar" class="avatar" />
-        </div>
-
-        <!-- Bruger-dropdown-menu (kun synlig, hvis brugeren er logget ind) -->
-        <template v-if="authStore.userEmail">
-          <div v-if="isUserMenuActive" class="user-dropdown">
-            <p class="velkomstBeksed">Hej {{ authStore.userEmail }}!</p>
-            <ul>
-              <li @click="goToWishlist">Min ønskeliste</li>
-              <li @click="authStore.signOutUser">Log ud</li>
-            </ul>
-          </div>
-        </template>
-      </div>
-
-      <!-- Hamburger menu for små skærme -->
-      <div class="hamburger" @click="toggleMenu">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-      </div>
-
-      <!-- Mobil dropdown-menu -->
-      <div
-        v-if="isMobile"
-        class="dropdown-menu"
-        :class="{ active: isDropdownActive }"
-      >
-        <ul>
-          <li @click="goToHome">Hjem</li>
+        <!-- Avatar container -->
+        <div
+          class="avatar-container"
+          @click="handleAvatarClick"
+          @mouseover="isUserMenuActive = true"
+          @mouseleave="isUserMenuActive = false"
+        >
           <template v-if="authStore.userEmail">
-            <li @click="goToWishlist">Min ønskeliste</li>
+            <p class="velkomstBeksed">Hej {{ authStore.userEmail }}!</p>
           </template>
-          <li>Om os</li>
-          <li>Kontakt</li>
-        </ul>
+          <template v-else>
+            <p class="velkomstBeksed">Hej gæst!</p>
+          </template>
+          <img src="./assets/avatar.png" alt="User Avatar" class="avatar" />
+
+          <!-- Dropdown-menu -->
+          <div v-if="isUserMenuActive" class="user-dropdown">
+            <template v-if="authStore.userEmail">
+              <!-- <p class="velkomstBeksed">Hej {{ authStore.userEmail }}!</p> -->
+              <ul>
+                <li @click="goToWishlist">Min ønskeliste</li>
+                <li @click="authStore.signOutUser">Log ud</li>
+              </ul>
+            </template>
+            <template v-else>
+              <ul>
+                <li @click="goToLogin">Login</li>
+                <li @click="goToSignUp">Opret bruger</li>
+              </ul>
+            </template>
+          </div>
+        </div>
       </div>
     </nav>
   </header>
-
-  <RouterView />
+  <div class="main-container">
+    <RouterView />
+  </div>
 </template>
 
 <script setup>
@@ -77,9 +69,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const isMobile = ref(false)
-const isDropdownActive = ref(false)
 const isUserMenuActive = ref(false)
-const isAuthReady = ref(false) // Tjek om auth-data er indlæst
 
 const goToWishlist = () => {
   router.push({ name: "wishlist" })
@@ -89,26 +79,23 @@ const goToLogin = () => {
   router.push({ name: "login" })
 }
 
+const goToSignUp = () => {
+  router.push({ name: "signup" })
+}
+
 const goToHome = () => {
   router.push({ name: "home" })
 }
 
-const toggleMenu = () => {
-  isDropdownActive.value = !isDropdownActive.value
-}
-
 const handleAvatarClick = () => {
   if (authStore.userEmail) {
-    isUserMenuActive.value = !isUserMenuActive.value
+    goToWishlist()
   } else {
-    isUserMenuActive.value = false
     goToLogin()
   }
 }
-onMounted(async () => {
-  await authStore.initializeAuth() // Sørg for at auth-data er hentet
-  isAuthReady.value = true
 
+onMounted(() => {
   isMobile.value = window.innerWidth <= 768
   window.addEventListener("resize", () => {
     isMobile.value = window.innerWidth <= 768
@@ -121,21 +108,19 @@ onMounted(async () => {
 
 body {
   margin: 0;
-  padding: 0;
   background-color: #1e203c;
 }
 
 .header-wrapper {
   width: 100%;
   background-color: #2e3a59;
-  padding: 10px 0;
 }
 
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
+  padding: 10px 20px;
   position: relative;
 }
 
@@ -158,6 +143,11 @@ body {
   flex: 1;
 }
 
+.velkomstBeksed {
+  color: #ffffff;
+  margin-right: 20px;
+}
+
 /* Avatar container */
 .avatar-container {
   position: relative;
@@ -171,6 +161,9 @@ body {
   width: 40px;
 }
 
+ul {
+  margin: 0;
+}
 /* Dropdown-menu under avatar */
 .user-dropdown {
   position: absolute;
@@ -183,7 +176,7 @@ body {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 10px;
   width: 200px;
-  z-index: 1000;
+  z-index: 1;
   display: flex;
   flex-direction: column;
 }
@@ -201,7 +194,7 @@ body {
 .user-dropdown ul {
   list-style: none;
   padding: 0;
-  margin: 10px 0 0;
+  margin: 5px 0;
 }
 
 .user-dropdown li {
@@ -214,13 +207,20 @@ body {
   background-color: #f0f0f0;
 }
 
+.main-container {
+  max-width: 2000px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 0 20px; /* Tilføjer lidt padding for mobilvenlighed */
+}
+
 /* Responsivitet */
 @media (max-width: 768px) {
   .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px;
   }
 
   .hamburger {
@@ -267,11 +267,6 @@ body {
 
   .dropdown-menu li:hover {
     background-color: #3a4a75;
-  }
-
-  button {
-    width: 100%;
-    margin-top: 10px;
   }
 }
 
