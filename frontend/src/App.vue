@@ -27,20 +27,21 @@
           @mouseover="isUserMenuActive = true"
           @mouseleave="isUserMenuActive = false"
         >
-          <template v-if="authStore.userEmail">
+          <!-- <template v-if="authStore.userEmail">
             <p class="velkomstBeksed">Hej bruger!</p>
           </template>
-          <template v-if="authStore.userEmail">
-            <p class="velkomstBeksed">Hej bruger!</p>
-          </template>
+
           <template v-else>
             <p class="velkomstBeksed">Hej gæst!</p>
-          </template>
+          </template> -->
           <img src="./assets/avatar.png" alt="User Avatar" class="avatar" />
           <!-- Dropdown-menu -->
           <div v-if="isUserMenuActive" class="user-dropdown">
             <template v-if="authStore.userEmail">
-              <!-- <p class="velkomstBeksed">Hej {{ authStore.userEmail }}!</p> -->
+              <p class="velkomstBesked" v-if="authStore.userEmail">
+                Hej {{ authStore.userEmail }}!
+              </p>
+
               <ul>
                 <li @click="goToWishlist">Min ønskeliste</li>
                 <li @click="authStore.signOutUser">Log ud</li>
@@ -110,7 +111,10 @@ const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await authStore.initializeAuth() // Sørg for at auth-data er hentet
+  isAuthReady.value = true
+
   isMobile.value = window.innerWidth <= 768
   window.addEventListener("resize", () => {
     isMobile.value = window.innerWidth <= 768
@@ -136,7 +140,9 @@ body {
   padding: 10px 20px;
   position: relative;
 }
-
+.velkomstBesked {
+  color: #000000;
+}
 .left {
   flex: 1;
 }
@@ -232,6 +238,10 @@ ul {
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  .center {
+    display: none;
   }
 
   .hamburger {
