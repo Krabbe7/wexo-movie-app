@@ -79,7 +79,8 @@ const authStore = useAuthStore()
 const isMobile = ref(false)
 const isDropdownActive = ref(false)
 const isUserMenuActive = ref(false)
-const isAuthReady = ref(false) // Tjek om auth-data er indlæst
+const isMenuOpen = ref(false)
+const isAuthReady = ref(false)
 
 const goToWishlist = () => {
   router.push({ name: "wishlist" })
