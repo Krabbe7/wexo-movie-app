@@ -3,7 +3,9 @@
     <h1>Min ønskeliste</h1>
 
     <div class="loading-color" v-if="loading">Loading...</div>
-    <div v-else-if="wishlist.length === 0">Your wishlist is empty.</div>
+    <div class="Tom-liste" v-else-if="wishlist.length === 0">
+      Din ønskeliste er tom
+    </div>
 
     <div v-else class="movie-list">
       <div v-for="movie in wishlist" :key="movie.id" class="movie-card">
@@ -62,5 +64,12 @@ onMounted(() => {
 <style scoped>
 .wishlist {
   text-align: center;
+}
+
+.Tom-liste {
+  color: #ffffff;
+  text-align: center;
+  margin-top: 70px;
+  font-size: 20px;
 }
 </style>

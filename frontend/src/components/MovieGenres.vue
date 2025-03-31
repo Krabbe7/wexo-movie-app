@@ -38,7 +38,7 @@
           v-if="visibleMovies[genre.id].length < genreCount[genre.id]"
           @click="loadMoreMovies(genre)"
         >
-          Hent flere
+          Hent flere film
         </button>
       </div>
     </div>
@@ -160,12 +160,7 @@ onMounted(() => {
 
 <style scoped>
 .genre-header {
-  display: flex;
-  align-items: center;
   margin-top: 50px;
-  gap: 20px;
-
-  flex-wrap: wrap;
 }
 
 @media (max-width: 494px) {

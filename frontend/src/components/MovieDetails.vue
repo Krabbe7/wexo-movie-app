@@ -109,7 +109,7 @@ onMounted(async () => {
 .backdrop {
   position: relative;
   width: 100%;
-  height: 50vh;
+  height: 600px;
   background-size: cover;
   background-position: center;
   display: flex;
@@ -190,6 +190,9 @@ onMounted(async () => {
   width: 100%; /* Gør iframe responsiv */
   height: 315px; /* Højden holdes fast, men bredden tilpasses */
 }
+.content {
+  margin-bottom: 100px;
+}
 .content h2 {
   margin: 70px 0;
 }
@@ -200,7 +203,8 @@ onMounted(async () => {
     auto-fill,
     minmax(120px, 1fr)
   ); /* Grid layout med min. 120px bredde pr. skuespiller */
-  gap: 20px;
+  column-gap: 20px;
+  row-gap: 100px;
   margin-top: 20px;
   width: 100%; /* Fylder hele bredden */
 }
@@ -216,36 +220,37 @@ onMounted(async () => {
 }
 
 .actor-card img {
-  width: 100%; /* Billedet fylder bredden af kortet */
+  width: 100%;
   height: auto;
   border-radius: 10px;
-  margin-bottom: 10px; /* Afstand mellem billede og navn */
 }
 
 .actor-card p {
-  font-size: 14px; /* Juster fontstørrelsen */
+  font-size: 14px;
 }
 
 /* Responsiv tilpasning for små skærme */
 @media (max-width: 768px) {
-  .details-container {
-    flex-direction: column; /* Stak dem vertikalt på små skærme */
-    align-items: center;
-    text-align: center;
-  }
-
-  .movie-description,
-  .trailer {
-    max-width: 100%; /* Begge sektioner fylder hele bredden på små skærme */
-    padding-right: 0; /* Fjerner eventuel padding til trailer */
+  .poster {
+    max-width: 200px;
   }
 
   .trailer iframe {
     height: 200px; /* Gør iframe mindre på små skærme */
   }
 
-  .actors {
-    grid-template-columns: 1fr 1fr; /* På små skærme stak dem vertikalt */
+  .backdrop {
+    height: 500px;
+  }
+  .details-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .movie-description {
+    max-width: 100%;
+    padding-right: 0;
   }
 }
 </style>
