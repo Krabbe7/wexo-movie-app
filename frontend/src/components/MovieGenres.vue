@@ -6,10 +6,12 @@
 
     <div v-else>
       <div v-for="genre in genres" :key="genre.id" class="genre-section">
-        <h2>{{ genre.name }} ({{ genreCount[genre.id] }} movies)</h2>
-        <button class="MoviesInGenre" @click="goToMoviesInGenre(genre.id)">
-          See all {{ genre.name }} movies
-        </button>
+        <div class="genre-header">
+          <h2>{{ genre.name }} ({{ genreCount[genre.id] }} movies)</h2>
+          <button class="MoviesInGenre" @click="goToMoviesInGenre(genre.id)">
+            Se alle {{ genre.name }} film
+          </button>
+        </div>
         <div class="movie-list">
           <div
             v-for="movie in visibleMovies[genre.id]"
@@ -36,7 +38,7 @@
           v-if="visibleMovies[genre.id].length < genreCount[genre.id]"
           @click="loadMoreMovies(genre)"
         >
-          Load More
+          Hent flere
         </button>
       </div>
     </div>
@@ -56,7 +58,7 @@ const genreMovies = ref({})
 const genreCount = ref({})
 const visibleMovies = ref({})
 const loading = ref(true)
-const limit = 7
+const limit = 10
 const page = ref({})
 const wishlist = ref([]) // Brugerens ønskeliste
 
@@ -157,27 +159,24 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.loading-color {
-  color: #ffffff;
-  text-align: center;
-  margin-top: 70px;
-  font-size: 20px;
-}
-h1,
-h2 {
-  color: #ffffff;
-}
-h1 {
-  text-align: center;
-  margin-top: 70px;
-}
-h2 {
+.genre-header {
+  display: flex;
+  align-items: center;
   margin-top: 50px;
-}
-.genre-section {
-  margin: 10px 0;
-}
-/* Style for individual movie cards */
+  gap: 20px;
 
-/* Responsive styling for small screens */
+  flex-wrap: wrap;
+}
+
+@media (max-width: 494px) {
+  .genre-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+    gap: 10px;
+
+    flex-wrap: wrap;
+  }
+}
 </style>

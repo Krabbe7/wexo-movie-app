@@ -19,17 +19,18 @@ h1 {
     margin-top: 70px;
 }
 
-h2 {
-    margin-top: 50px;
-}
+
 
 /* Style for individual movie cards */
 .movie-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    column-gap: 70px;
+    column-gap: 40px;
     row-gap: 50px;
     margin: 40px 0;
+    place-items: center;
+
+
 
 
 }
@@ -38,13 +39,15 @@ h2 {
     position: relative;
     border-radius: 7px;
     overflow: hidden;
-    width: 200px;
+    width: 180px;
     text-align: center;
     color: white;
     transition: transform 0.3s ease-in-out;
     display: flex;
     flex-direction: column;
     height: 100%;
+
+
 
 
 }
@@ -65,7 +68,7 @@ h2 {
 
 
 .movie-info {
-    padding: 10px 10px 20px 10px;
+    padding: 10px 10px 15px;
     background-color: #2e3a59;
     text-align: center;
     min-height: 60px;
@@ -74,7 +77,7 @@ h2 {
 
 .movie-info h3 {
     font-size: 16px;
-    margin: 5px 0 0;
+    margin: 0;
     min-height: 40px;
     display: flex;
     align-items: center;
@@ -88,13 +91,25 @@ h2 {
     padding: 5px 8px;
     border-radius: 5px;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 12px;
     margin-bottom: 5px;
 }
 
-@media (max-width: 768px) {}
 
-@media (max-width: 480px) {}
+
+
+
+@media (max-width: 494px) {
+    .genre-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        /* Centrerer overskrift og knapper */
+        text-align: center;
+        /* Sikrer centreret tekst */
+    }
+
+}
 
 /*Sign up/login*/
 .login-form-container,
