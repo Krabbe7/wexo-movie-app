@@ -86,6 +86,7 @@ const authStore = useAuthStore()
 const isMobile = ref(false)
 const isUserMenuActive = ref(false)
 const isMenuOpen = ref(false)
+const isAuthReady = ref(false)
 
 const goToWishlist = () => {
   router.push({ name: "wishlist" })

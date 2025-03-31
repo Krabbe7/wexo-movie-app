@@ -13,10 +13,8 @@ export const useAuthStore = defineStore("auth", () => {
       onAuthStateChanged(auth, (user) => {
         if (user) {
           userEmail.value = user.email
-          router.push({ name: "wishlist" }) // <--- Redirect til wishlist, hvis logget ind
         } else {
           userEmail.value = null
-          router.push({ name: "home" }) // <--- Redirect til home, hvis logget ud
         }
         resolve()
       })
