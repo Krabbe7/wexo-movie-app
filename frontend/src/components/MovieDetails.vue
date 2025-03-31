@@ -23,21 +23,24 @@
         <p><strong>Release Year:</strong> {{ movie.releaseYear }}</p>
         <p><strong>Genres:</strong> {{ movie.genres.join(", ") }}</p>
         <p><strong>Rating:</strong> {{ movie.rating }}/10</p>
-        <div v-if="movie.directors.length">
-          <p><strong>Director(s):</strong> {{ movie.directors.join(", ") }}</p>
-        </div>
+        <p><strong>Director(s):</strong> {{ movie.directors.join(", ") }}</p>
       </div>
-      <div v-if="movie.trailerUrl" class="trailer">
-        <iframe
-          :src="`${movie.trailerUrl.replace('watch?v=', 'embed/')}`"
-          frameborder="0"
-          allowfullscreen
-        ></iframe>
+
+      <!-- Responsiv trailer -->
+      <div v-if="movie.trailerUrl" class="trailer-container">
+        <div class="trailer">
+          <iframe
+            :src="`${movie.trailerUrl.replace('watch?v=', 'embed/')}`"
+            frameborder="0"
+            allowfullscreen
+            class="responsive-iframe"
+          ></iframe>
+        </div>
       </div>
     </div>
 
     <div class="content">
-      <h2>Actors</h2>
+      <h2 class="actors-heading">Actors</h2>
       <div class="actors">
         <div v-for="actor in movie.actors" :key="actor.name" class="actor-card">
           <img v-if="actor.profile" :src="actor.profile" :alt="actor.name" />
@@ -57,7 +60,6 @@ import { auth, db } from "../Services/FirebaseConfig"
 import { doc, getDoc } from "firebase/firestore"
 
 const wishlist = ref([])
-
 const route = useRoute()
 const movie = ref(null)
 
@@ -161,62 +163,71 @@ onMounted(async () => {
   align-items: flex-start;
   width: 100%;
   box-sizing: border-box;
-  margin-top: 70px;
-}
-
-.movie-description,
-.trailer {
-  flex: 1;
-  max-width: 50%;
-  box-sizing: border-box;
+  margin-top: 80px;
 }
 
 .movie-description {
+  margin-top: 0;
+  flex: 1;
+  max-width: 100%;
   text-align: left;
   padding-right: 20px;
 }
-
-.movie-description p:first-of-type {
+.movie-description p {
+  border-top: 1px solid #ffffff;
+  padding-top: 20px;
+  box-sizing: border-box;
+}
+.movie-description p:first-child {
+  border-top: 0;
   margin-top: 0;
+  padding: 0;
+}
+.trailer-container {
+  flex: 1;
+  max-width: 50%;
+  width: 100%;
 }
 
-.movie-description p:not(:last-child) {
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 15px;
-  margin-bottom: 10px;
+.trailer {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 aspect ratio */
 }
 
-.trailer iframe {
-  width: 100%; /* Gør iframe responsiv */
-  height: 315px; /* Højden holdes fast, men bredden tilpasses */
+.responsive-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
+
 .content {
   margin-bottom: 100px;
 }
-.content h2 {
-  margin: 70px 0;
+
+.actors-heading {
+  margin-top: 80px;
 }
-/* Skuespillere (Actors) - brug af CSS Grid */
+
 .actors {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(120px, 1fr)
-  ); /* Grid layout med min. 120px bredde pr. skuespiller */
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   column-gap: 20px;
   row-gap: 100px;
-  margin-top: 20px;
-  width: 100%; /* Fylder hele bredden */
+  margin-top: 70px;
+  width: 100%;
 }
 
 .actor-card {
-  width: 120px; /* Fast bredde */
-  height: 180px; /* Fast højde */
+  width: 120px;
+  height: 180px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   text-align: center;
-  margin: 0 auto; /* Centerer kortet */
+  margin: 0 auto;
 }
 
 .actor-card img {
@@ -225,32 +236,20 @@ onMounted(async () => {
   border-radius: 10px;
 }
 
-.actor-card p {
-  font-size: 14px;
-}
-
-/* Responsiv tilpasning for små skærme */
-@media (max-width: 768px) {
-  .poster {
-    max-width: 200px;
-  }
-
-  .trailer iframe {
-    height: 200px; /* Gør iframe mindre på små skærme */
-  }
-
+@media (max-width: 850px) {
   .backdrop {
     height: 500px;
   }
   .details-container {
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+  }
+  .poster {
+    max-width: 200px;
   }
 
-  .movie-description {
+  .trailer-container {
+    margin-top: 80px;
     max-width: 100%;
-    padding-right: 0;
   }
 }
 </style>
