@@ -24,32 +24,27 @@
         <div
           class="avatar-container"
           @click="handleAvatarClick"
-          @mouseover="isUserMenuActive = true"
-          @mouseleave="isUserMenuActive = false"
+          @mouseover="!isMobile && (isUserMenuActive = true)"
+          @mouseleave="!isMobile && (isUserMenuActive = false)"
         >
           <template v-if="authStore.userEmail">
-            <p class="velkomstBeksed">Hej {{ authStore.userEmail }}!</p>
+            <p class="velkomstBeksed">Hej bruger!</p>
           </template>
           <template v-else>
             <p class="velkomstBeksed">Hej gæst!</p>
           </template>
           <img src="./assets/avatar.png" alt="User Avatar" class="avatar" />
-
-          <!-- Dropdown-menu -->
-          <div v-if="isUserMenuActive" class="user-dropdown">
-            <template v-if="authStore.userEmail">
-              <!-- <p class="velkomstBeksed">Hej {{ authStore.userEmail }}!</p> -->
-              <ul>
-                <li @click="goToWishlist">Min ønskeliste</li>
-                <li @click="authStore.signOutUser">Log ud</li>
-              </ul>
-            </template>
-            <template v-else>
-              <ul>
-                <li @click="goToLogin">Login</li>
-                <li @click="goToSignUp">Opret bruger</li>
-              </ul>
-            </template>
+        </div>
+        <div class="hamburger" @click="toggleMenu">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <div :class="['dropdown-menu', { active: isMenuOpen }]">
+            <ul>
+              <li @click="goToHome">Hjem</li>
+              <li>Om os</li>
+              <li>Kontakt</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -70,6 +65,7 @@ const authStore = useAuthStore()
 
 const isMobile = ref(false)
 const isUserMenuActive = ref(false)
+const isMenuOpen = ref(false)
 
 const goToWishlist = () => {
   router.push({ name: "wishlist" })
@@ -77,10 +73,6 @@ const goToWishlist = () => {
 
 const goToLogin = () => {
   router.push({ name: "login" })
-}
-
-const goToSignUp = () => {
-  router.push({ name: "signup" })
 }
 
 const goToHome = () => {
@@ -95,6 +87,10 @@ const handleAvatarClick = () => {
   }
 }
 
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value
+}
+
 onMounted(() => {
   isMobile.value = window.innerWidth <= 768
   window.addEventListener("resize", () => {
@@ -104,13 +100,11 @@ onMounted(() => {
 </script>
 
 <style>
-/* Generel styling for navbar */
-
 body {
   margin: 0;
   background-color: #1e203c;
 }
-
+/* Generel styling for navbar */
 .header-wrapper {
   width: 100%;
   background-color: #2e3a59;
@@ -148,7 +142,6 @@ body {
   margin-right: 20px;
 }
 
-/* Avatar container */
 .avatar-container {
   position: relative;
   cursor: pointer;
@@ -156,55 +149,8 @@ body {
   align-items: center;
 }
 
-/* Avatar billede */
 .avatar {
   width: 40px;
-}
-
-ul {
-  margin: 0;
-}
-/* Dropdown-menu under avatar */
-.user-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: white;
-  color: black;
-  border-radius: 5px;
-  border: 1px solid #000000;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 10px;
-  width: 200px;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Dropdown indhold */
-.user-dropdown p {
-  margin: 0;
-  font-size: 14px;
-  text-align: center;
-  font-weight: bold;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #ddd;
-}
-
-.user-dropdown ul {
-  list-style: none;
-  padding: 0;
-  margin: 5px 0;
-}
-
-.user-dropdown li {
-  padding: 8px;
-  text-align: center;
-  cursor: pointer;
-}
-
-.user-dropdown li:hover {
-  background-color: #f0f0f0;
 }
 
 .main-container {
@@ -212,7 +158,7 @@ ul {
   width: 100%;
   box-sizing: border-box;
   margin: 0 auto;
-  padding: 0 20px; /* Tilføjer lidt padding for mobilvenlighed */
+  padding: 0 20px;
 }
 
 /* Responsivitet */
@@ -257,7 +203,9 @@ ul {
     padding: 0;
     margin: 0;
   }
-
+  .dropdown-menu li:first-child {
+    border-top: 1px solid #fff;
+  }
   .dropdown-menu li {
     padding: 10px 0;
     cursor: pointer;
