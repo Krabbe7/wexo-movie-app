@@ -24,9 +24,12 @@
         <div
           class="avatar-container"
           @click="handleAvatarClick"
-          @mouseover="!isMobile && (isUserMenuActive = true)"
-          @mouseleave="!isMobile && (isUserMenuActive = false)"
+          @mouseover="isUserMenuActive = true"
+          @mouseleave="isUserMenuActive = false"
         >
+          <template v-if="authStore.userEmail">
+            <p class="velkomstBeksed">Hej bruger!</p>
+          </template>
           <template v-if="authStore.userEmail">
             <p class="velkomstBeksed">Hej bruger!</p>
           </template>
@@ -34,6 +37,22 @@
             <p class="velkomstBeksed">Hej gæst!</p>
           </template>
           <img src="./assets/avatar.png" alt="User Avatar" class="avatar" />
+          <!-- Dropdown-menu -->
+          <div v-if="isUserMenuActive" class="user-dropdown">
+            <template v-if="authStore.userEmail">
+              <!-- <p class="velkomstBeksed">Hej {{ authStore.userEmail }}!</p> -->
+              <ul>
+                <li @click="goToWishlist">Min ønskeliste</li>
+                <li @click="authStore.signOutUser">Log ud</li>
+              </ul>
+            </template>
+            <template v-else>
+              <ul>
+                <li @click="goToLogin">Login</li>
+                <li @click="goToSignUp">Opret bruger</li>
+              </ul>
+            </template>
+          </div>
         </div>
         <div class="hamburger" @click="toggleMenu">
           <span class="bar"></span>
@@ -151,6 +170,52 @@ body {
 
 .avatar {
   width: 40px;
+}
+
+ul {
+  margin: 0;
+}
+/* Dropdown-menu under avatar */
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  color: black;
+  border-radius: 5px;
+  border: 1px solid #000000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  width: 200px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dropdown indhold */
+.user-dropdown p {
+  margin: 0;
+  font-size: 14px;
+  text-align: center;
+  font-weight: bold;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.user-dropdown ul {
+  list-style: none;
+  padding: 0;
+  margin: 5px 0;
+}
+
+.user-dropdown li {
+  padding: 8px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.user-dropdown li:hover {
+  background-color: #f0f0f0;
 }
 
 .main-container {
