@@ -111,7 +111,7 @@ onMounted(async () => {
 .backdrop {
   position: relative;
   width: 100%;
-  height: 500px;
+  height: 600px;
   background-size: cover;
   background-position: center;
   display: flex;
@@ -151,7 +151,7 @@ onMounted(async () => {
 }
 
 .poster {
-  max-width: 200px;
+  max-width: 250px;
   width: 100%;
   height: auto;
   border-radius: 10px;
@@ -247,13 +247,13 @@ onMounted(async () => {
 
 @media (max-width: 850px) {
   .backdrop {
-    height: 400px;
+    height: 500px;
   }
   .details-container {
     flex-direction: column;
   }
   .poster {
-    max-width: 150px;
+    max-width: 200px;
   }
 
   .trailer-container {
