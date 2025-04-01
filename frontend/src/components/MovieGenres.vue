@@ -7,7 +7,7 @@
     <div v-else>
       <div v-for="genre in genres" :key="genre.id" class="genre-section">
         <div class="genre-header">
-          <h2>{{ genre.name }} ({{ genreCount[genre.id] }} movies)</h2>
+          <h2>{{ genre.name }} ({{ genreCount[genre.id] || 0 }} movies)</h2>
           <button class="MoviesInGenre" @click="goToMoviesInGenre(genre.id)">
             See all {{ genre.name }} movies
           </button>
@@ -58,7 +58,8 @@ const genreMovies = ref({})
 const genreCount = ref({})
 const visibleMovies = ref({})
 const loading = ref(true)
-const limit = 10
+const limit = 6
+const loadmoreLimit = 6
 const page = ref({})
 const wishlist = ref([]) // Brugerens ønskeliste
 
@@ -136,7 +137,7 @@ const loadMoreMovies = (genre) => {
   const currentVisibleMovies = visibleMovies.value[genreId]
   const nextMovies = allMovies.slice(
     currentVisibleMovies.length,
-    currentVisibleMovies.length + limit
+    currentVisibleMovies.length + loadmoreLimit
   )
   visibleMovies.value[genreId] = [...currentVisibleMovies, ...nextMovies]
 }
