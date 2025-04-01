@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>{{ genreName }} Movies</h1>
+    <h1>{{ genreName }} Movies ({{ genreCount[genreId] || 0 }})</h1>
 
     <div class="loading-color" v-if="loading">Loading...</div>
 
@@ -37,6 +37,7 @@ import { doc, getDoc } from "firebase/firestore"
 const route = useRoute()
 const genreId = ref(route.params.id) // Henter genre-id fra URL
 const genreName = ref("") // Gemmer navnet på genren
+const genreCount = ref({})
 const movies = ref([]) // Film i genren
 const loading = ref(true)
 const wishlist = ref([]) // Ønskeliste
@@ -45,7 +46,7 @@ const wishlist = ref([]) // Ønskeliste
 const fetchMoviesByGenre = async () => {
   try {
     loading.value = true
-    await fetchWishlist() // Hent wishlist først, så knapperne er korrekte fra start
+    await fetchWishlist() // Hent wishlist først
 
     // Hent genre-navn
     const genreResponse = await axios.get(
@@ -62,9 +63,18 @@ const fetchMoviesByGenre = async () => {
       }
     )
 
-    movies.value = movieResponse.data
+    // Fjern duplikater baseret på film-id (Map sikrer unikke film)
+    const uniqueMovies = [
+      ...new Map(movieResponse.data.map((movie) => [movie.id, movie])).values(),
+    ]
+
+    // Opdater movies listen med de unikke film
+    movies.value = uniqueMovies
+
+    // Opdater genreCount for den specifikke genre
+    genreCount.value[genreId.value] = uniqueMovies.length
   } catch (error) {
-    console.error("Error retrieving movie:", error)
+    console.error("Error retrieving movies:", error)
   } finally {
     loading.value = false
   }
