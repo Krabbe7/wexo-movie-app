@@ -193,7 +193,7 @@ ul {
   border-radius: 5px;
   overflow: hidden;
   width: 250px;
-  z-index: 1;
+  z-index: 3;
   display: flex;
   flex-direction: column;
 }
@@ -271,7 +271,7 @@ ul {
     width: 100%;
     background-color: #2e3a59;
     text-align: center;
-    z-index: 100;
+    z-index: 3;
   }
 
   .dropdown-menu.active {
