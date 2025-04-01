@@ -10,9 +10,8 @@
         <label>Password:</label>
         <input type="password" v-model="password" required />
       </div>
-      <div class="LoginOpretButton">
-        <button type="submit">Login</button>
-      </div>
+
+      <button class="login-btn" type="submit">Login</button>
     </form>
     <p>
       Don't have a user profile?

@@ -11,7 +11,7 @@
         <input type="password" v-model="password" required />
       </div>
 
-      <button type="submit">Opret bruger</button>
+      <button class="signup-btn" type="submit">Opret bruger</button>
     </form>
     <p>
       Already got a user profile?<span class="LoginLink" @click="goToLogin">
