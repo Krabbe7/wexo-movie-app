@@ -15,8 +15,10 @@
       </div>
     </form>
     <p>
-      Har du ikke en bruger?
-      <span class="OpretLink" @click="goToSignUp">Opret her</span>
+      Don't have a user profile?
+      <span class="OpretLink" @click="goToSignUp"
+        >Click here to create a profile</span
+      >
     </p>
     <p v-if="errorMessage">{{ errorMessage }}</p>
     <p v-if="successMessage">{{ successMessage }}</p>
@@ -43,7 +45,7 @@ const handleLogin = async () => {
 
   if (!emailRegEx.test(email.value)) {
     errorMessage.value =
-      "Ugyldig e-mailadresse. Sørg for at den er korrekt skrevet (fx brugernavn@domæne.com)."
+      "Invalid email address. Make sure it is written correctly (e.g. username@domain.com)."
     return
   }
 
@@ -51,7 +53,6 @@ const handleLogin = async () => {
 
   if (result.success) {
     authStore.userEmail = result.user.email
-    successMessage.value = `User ${result.user.email} logged in successfully!`
 
     // Navigér til wishlist efter succesfuldt login
     router.push({ name: "wishlist" })
@@ -59,7 +60,7 @@ const handleLogin = async () => {
     const emailExists = await checkIfEmailExists(email.value)
     if (!emailExists) {
       errorMessage.value =
-        "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen."
+        "Invalid email or password. Check your information and try again."
     }
   }
 }

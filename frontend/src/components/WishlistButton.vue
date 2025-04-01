@@ -43,7 +43,7 @@ const toggleWishlist = async () => {
     const user = auth.currentUser
     if (!user) {
       router.push({ name: "login" })
-      alert("Log venligst ind for at administrere din ønskeliste")
+      alert("Please log in to manage your wishlist")
       return
     }
 
@@ -67,8 +67,8 @@ const toggleWishlist = async () => {
 
     checkIfInWishlist()
   } catch (error) {
-    console.error("Fejl ved opdatering af ønskeliste:", error)
-    alert("Der opstod en fejl. Prøv igen senere.")
+    console.error("Error updating wishlist:", error)
+    alert("An error occurred. Please try again later.")
   }
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>Filmgenre</h1>
+    <h1>Movies</h1>
 
     <div class="loading-color" v-if="loading">Loading...</div>
 
@@ -9,7 +9,7 @@
         <div class="genre-header">
           <h2>{{ genre.name }} ({{ genreCount[genre.id] }} movies)</h2>
           <button class="MoviesInGenre" @click="goToMoviesInGenre(genre.id)">
-            Se alle {{ genre.name }} film
+            See all {{ genre.name }} movies
           </button>
         </div>
         <div class="movie-list">
@@ -38,7 +38,7 @@
           v-if="visibleMovies[genre.id].length < genreCount[genre.id]"
           @click="loadMoreMovies(genre)"
         >
-          Hent flere film
+          Load more...
         </button>
       </div>
     </div>
@@ -87,7 +87,7 @@ const fetchGenresAndMovies = async () => {
     )
     await Promise.all(genreMoviesPromises)
   } catch (error) {
-    console.error("Kunne ikke hente genrer og film:", error)
+    console.error("Could not retrieve genres and movies:", error)
   } finally {
     loading.value = false
   }
@@ -120,7 +120,7 @@ const loadMoviesForGenre = async (genre) => {
       visibleMovies.value[genreId] = uniqueMovies.slice(0, limit)
     }
   } catch (error) {
-    console.error("Kunne ikke indlæse film for genren:", error)
+    console.error("Could not load movies for genre:", error)
   }
 }
 

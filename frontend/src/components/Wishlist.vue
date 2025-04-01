@@ -1,10 +1,10 @@
 <template>
   <div class="wishlist">
-    <h1>Min ønskeliste</h1>
+    <h1>My wishlist</h1>
 
     <div class="loading-color" v-if="loading">Loading...</div>
     <div class="Tom-liste" v-else-if="wishlist.length === 0">
-      Din ønskeliste er tom
+      Your wishlist is empty.
     </div>
 
     <div v-else class="movie-list">

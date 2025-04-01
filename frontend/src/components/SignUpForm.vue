@@ -14,8 +14,8 @@
       <button type="submit">Opret bruger</button>
     </form>
     <p>
-      Har du allerede en bruger?<span class="LoginLink" @click="goToLogin">
-        Log ind her</span
+      Already got a user profile?<span class="LoginLink" @click="goToLogin">
+        click here to log in</span
       >
     </p>
     <p v-if="errorMessage">{{ errorMessage }}</p>
@@ -48,14 +48,14 @@ const handleSignup = async () => {
   // Valider e-mail
   if (!emailRegEx.test(email.value)) {
     errorMessage.value =
-      "Ugyldig e-mailadresse. Sørg for at den er korrekt skrevet (fx brugernavn@domæne.com)."
+      "Invalid email address. Make sure it is written correctly (e.g. username@domain.com)."
     return
   }
 
   // Valider adgangskode (mindst 6 tegn, både bogstaver og tal)
   if (!passwordRegEx.test(password.value)) {
     errorMessage.value =
-      "Adgangskoden skal være mindst 6 tegn og indeholde både bogstaver og tal."
+      "The password must be at least 6 characters long and contain both letters and numbers."
     return
   }
 
@@ -63,8 +63,8 @@ const handleSignup = async () => {
 
   if (result.success) {
     authStore.userEmail = result.user.email
-    successMessage.value = `Bruger med email: ${result.user.email} oprettet succesfuldt`
-    alert("Du er nu oprettet som bruger")
+    successMessage.value = `User with email: ${result.user.email} created successfully`
+    alert("You are now registered as a user.")
   } else {
     errorMessage.value = result.message
   }

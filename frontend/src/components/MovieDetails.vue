@@ -70,7 +70,7 @@ const fetchMovieDetails = async () => {
     )
     movie.value = response.data
   } catch (error) {
-    console.error("Fejl ved hentning af filmdetaljer:", error)
+    console.error("Error retrieving movie details:", error)
   }
 }
 
@@ -118,6 +118,7 @@ onMounted(async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  border-radius: 0 0 15px 15px;
 }
 
 .backdrop::before {
@@ -129,6 +130,7 @@ onMounted(async () => {
   height: 100%;
   background: #000000af;
   z-index: 1;
+  border-radius: 0 0 10px 10px;
 }
 
 .wishlist-btn-description {
@@ -201,6 +203,7 @@ onMounted(async () => {
   left: 0;
   width: 100%;
   height: 100%;
+  border-radius: 10px;
 }
 
 .content {
@@ -222,7 +225,7 @@ onMounted(async () => {
 
 .actor-card {
   width: 120px;
-  height: 180px;
+  height: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;

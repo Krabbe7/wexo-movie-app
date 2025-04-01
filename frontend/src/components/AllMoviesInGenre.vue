@@ -64,7 +64,7 @@ const fetchMoviesByGenre = async () => {
 
     movies.value = movieResponse.data
   } catch (error) {
-    console.error("Fejl ved hentning af film:", error)
+    console.error("Error retrieving movie:", error)
   } finally {
     loading.value = false
   }
