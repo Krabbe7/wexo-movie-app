@@ -29,7 +29,7 @@
         >
           <img src="./assets/avatar.png" alt="User Avatar" class="avatar" />
           <!-- Dropdown-menu -->
-          <div v-if="isUserMenuActive" class="user-dropdown">
+          <div v-if="isUserMenuActive" class="user-dropdown" @click.stop>
             <p class="velkomstBesked">
               Hi {{ authStore.userEmail || "guest" }}!
             </p>
@@ -88,6 +88,10 @@ const goToWishlist = () => {
 
 const goToLogin = () => {
   router.push({ name: "login" })
+}
+
+const goToSignUp = () => {
+  router.push({ name: "signup" })
 }
 
 const goToHome = () => {

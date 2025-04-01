@@ -11,12 +11,11 @@
         <input type="password" v-model="password" required />
       </div>
 
-      <button class="signup-btn" type="submit">Opret bruger</button>
+      <button class="signup-btn" type="submit">Create profile</button>
     </form>
     <p>
-      Already got a user profile?<span class="LoginLink" @click="goToLogin">
-        click here to log in</span
-      >
+      Already got a user profile?
+      <span class="LoginLink" @click="goToLogin"> Click here to log in</span>
     </p>
     <p v-if="errorMessage">{{ errorMessage }}</p>
     <p v-if="successMessage">{{ successMessage }}</p>
@@ -65,6 +64,7 @@ const handleSignup = async () => {
     authStore.userEmail = result.user.email
     successMessage.value = `User with email: ${result.user.email} created successfully`
     alert("You are now registered as a user.")
+    router.push({ name: "wishlist" })
   } else {
     errorMessage.value = result.message
   }
