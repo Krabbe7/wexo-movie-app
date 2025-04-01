@@ -8,7 +8,12 @@
     </div>
 
     <div v-else class="movie-list">
-      <div v-for="movie in wishlist" :key="movie.id" class="movie-card">
+      <div
+        v-for="movie in wishlist"
+        :key="movie.id"
+        class="movie-card"
+        @click="goToMovieDetails(movie.id)"
+      >
         <!-- Wishlist-knap i øverste venstre hjørne -->
         <div class="wishlist-button">
           <WishlistButton :movie="movie" :wishlist="wishlist" />
@@ -28,11 +33,13 @@
 </template>
 
 <script setup>
-import { db, auth } from "../Services/FirebaseConfig" // Firebase-import
+import { db, auth } from "../Services/FirebaseConfig"
+import { useRouter } from "vue-router"
 import { ref, onMounted } from "vue"
 import { doc, getDoc } from "firebase/firestore"
 import WishlistButton from "./WishlistButton.vue"
 
+const router = useRouter()
 const wishlist = ref([]) // Brugerens ønskeliste
 const loading = ref(true)
 
@@ -51,6 +58,10 @@ const fetchWishlist = async () => {
   }
 
   loading.value = false
+}
+
+const goToMovieDetails = (movieId) => {
+  router.push({ name: "movie-details", params: { id: movieId } })
 }
 
 // Lyt efter login-ændringer

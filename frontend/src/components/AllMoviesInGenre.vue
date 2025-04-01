@@ -7,7 +7,12 @@
     <div v-else-if="movies.length === 0">No movies found in this genre.</div>
 
     <div v-else class="movie-list">
-      <div v-for="movie in movies" :key="movie.id" class="movie-card">
+      <div
+        v-for="movie in movies"
+        :key="movie.id"
+        class="movie-card"
+        @click="goToMovieDetails(movie.id)"
+      >
         <!-- Wishlist-knap i øverste venstre hjørne -->
         <div class="wishlist-button">
           <WishlistButton :movie="movie" :wishlist="wishlist" />
@@ -28,13 +33,14 @@
 
 <script setup>
 import { ref, onMounted } from "vue"
-import { useRoute } from "vue-router"
+import { useRoute, useRouter } from "vue-router"
 import axios from "axios"
 import WishlistButton from "./WishlistButton.vue"
 import { auth, db } from "../Services/FirebaseConfig"
 import { doc, getDoc } from "firebase/firestore"
 
 const route = useRoute()
+const router = useRouter()
 const genreId = ref(route.params.id) // Henter genre-id fra URL
 const genreName = ref("") // Gemmer navnet på genren
 const genreCount = ref({})
@@ -91,6 +97,10 @@ const fetchWishlist = async () => {
   if (wishlistSnap.exists()) {
     wishlist.value = wishlistSnap.data().movies || []
   }
+}
+
+const goToMovieDetails = (movieId) => {
+  router.push({ name: "movie-details", params: { id: movieId } })
 }
 
 // Hent både film og ønskeliste når komponenten mountes
