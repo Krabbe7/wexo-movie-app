@@ -36,13 +36,12 @@ export const signup = async (email, password) => {
     if (error.code === "auth/email-already-in-use") {
       return {
         success: false,
-        message:
-          "Denne e-mail er allerede i brug. Brug venligst en anden e-mail.",
+        message: "This email is already in use. Please use a different email.",
       }
     } else {
       return {
         success: false,
-        message: "Oprettelse af bruger mislykkedes, prøv igen.",
+        message: "User creation failed, please try again.",
       }
     }
   }
@@ -68,7 +67,7 @@ export const checkIfEmailExists = async (email) => {
     const methods = await fetchSignInMethodsForEmail(auth, email)
     return methods.length > 0 // Hvis listen er tom, betyder det, at e-mailen ikke er oprettet
   } catch (error) {
-    console.error("Fejl ved tjek af e-mail:", error)
+    console.error("Error checking email:", error)
     return false
   }
 }
