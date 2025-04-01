@@ -218,19 +218,25 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   column-gap: 20px;
-  row-gap: 100px;
+  row-gap: 50px;
   margin-top: 70px;
   width: 100%;
 }
 
 .actor-card {
-  width: 120px;
-  height: auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  align-items: center;
+  justify-content: flex-start;
   text-align: center;
-  margin: 0 auto;
+  height: 100%;
+}
+
+.actor-card p {
+  min-height: 3em; /* Sørger for, at alle tekstblokke har samme højde */
+  display: flex;
+  align-items: flex-start; /* Tvinger teksten til at starte fra toppen */
+  text-align: center;
 }
 
 .actor-card img {

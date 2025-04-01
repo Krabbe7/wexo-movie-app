@@ -86,10 +86,10 @@ const getMovieDetails = async (movieId) => {
     // Hent skuespillere og instruktører
     const actors = movie.credits.cast.slice(0, 10).map((actor) => ({
       name: actor.name,
-      character: actor.character,
+      character: actor.character ? actor.character : "Unknown Character",
       profile: actor.profile_path
         ? `https://image.tmdb.org/t/p/w500${actor.profile_path}`
-        : null,
+        : "https://placehold.co/500x750?text=No+Avalible+Image",
     }))
 
     const directors = movie.credits.crew
