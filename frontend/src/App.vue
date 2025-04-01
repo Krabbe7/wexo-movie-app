@@ -13,9 +13,9 @@
 
       <div class="center">
         <ul v-if="!isMobile">
-          <li @click="goToHome">Hjem</li>
-          <li>Om os</li>
-          <li>Kontakt</li>
+          <li @click="goToHome">Home</li>
+          <li>About us</li>
+          <li>Contact</li>
         </ul>
       </div>
 
@@ -27,32 +27,26 @@
           @mouseover="isUserMenuActive = true"
           @mouseleave="isUserMenuActive = false"
         >
-          <!-- <template v-if="authStore.userEmail">
-            <p class="velkomstBeksed">Hej bruger!</p>
-          </template>
-
-          <template v-else>
-            <p class="velkomstBeksed">Hej gæst!</p>
-          </template> -->
           <img src="./assets/avatar.png" alt="User Avatar" class="avatar" />
           <!-- Dropdown-menu -->
           <div v-if="isUserMenuActive" class="user-dropdown">
-            <template v-if="authStore.userEmail">
-              <p class="velkomstBesked" v-if="authStore.userEmail">
-                Hej {{ authStore.userEmail }}!
-              </p>
+            <p class="velkomstBesked">
+              Hi {{ authStore.userEmail || "guest" }}!
+            </p>
 
-              <ul>
-                <li @click="goToWishlist">Min ønskeliste</li>
+            <ul>
+              <template v-if="authStore.userEmail">
+                <li @click="goToWishlist">My wishlist</li>
                 <li @click="authStore.signOutUser">Log ud</li>
-              </ul>
-            </template>
-            <template v-else>
-              <ul>
-                <li @click="goToLogin">Login</li>
-                <li @click="goToSignUp">Opret bruger</li>
-              </ul>
-            </template>
+              </template>
+
+              <template v-else>
+                <ul>
+                  <li @click="goToLogin">Login</li>
+                  <li @click="goToSignUp">Create profile</li>
+                </ul>
+              </template>
+            </ul>
           </div>
         </div>
         <div class="hamburger" @click="toggleMenu">
@@ -61,9 +55,9 @@
           <span class="bar"></span>
           <div :class="['dropdown-menu', { active: isMenuOpen }]">
             <ul>
-              <li @click="goToHome">Hjem</li>
-              <li>Om os</li>
-              <li>Kontakt</li>
+              <li @click="goToHome">Home</li>
+              <li>About us</li>
+              <li>Contact</li>
             </ul>
           </div>
         </div>
@@ -187,32 +181,25 @@ ul {
   position: absolute;
   top: 100%;
   right: 0;
-  background-color: white;
-  color: black;
-  border-radius: 5px;
-  border: 1px solid #000000;
+  background-color: #2e3a59;
+  color: rgb(255, 255, 255);
+
+  border: 1px solid #ffffff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 10px;
-  width: 200px;
+  border-radius: 5px;
+  overflow: hidden;
+  width: 250px;
   z-index: 1;
   display: flex;
   flex-direction: column;
 }
 
 /* Dropdown indhold */
-.user-dropdown p {
-  margin: 0;
-  font-size: 14px;
-  text-align: center;
-  font-weight: bold;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #ddd;
-}
 
 .user-dropdown ul {
   list-style: none;
   padding: 0;
-  margin: 5px 0;
+  margin: 0;
 }
 
 .user-dropdown li {
@@ -220,9 +207,22 @@ ul {
   text-align: center;
   cursor: pointer;
 }
-
+.user-dropdown li:first-child {
+  border-bottom: 1px solid #ffffff;
+}
 .user-dropdown li:hover {
-  background-color: #f0f0f0;
+  background-color: #3a4a75;
+}
+
+.user-dropdown p {
+  margin: 0;
+  font-size: 14px;
+  text-align: center;
+  font-weight: bold;
+  padding: 15px 0;
+  border-bottom: 1px solid #ddd;
+  background-color: #1e203c;
+  color: #ffffff;
 }
 
 .main-container {
