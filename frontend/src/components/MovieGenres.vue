@@ -13,12 +13,8 @@
           </button>
         </div>
         <div class="movie-list">
-          <div
-            v-for="movie in visibleMovies[genre.id]"
-            :key="movie.id"
-            class="movie-card"
-            @click="goToMovieDetails(movie.id)"
-          >
+          <div v-for="movie in visibleMovies[genre.id]" :key="movie.id" class="movie-card"
+            @click="goToMovieDetails(movie.id)">
             <!-- Wishlist-knap i øverste venstre hjørne -->
             <div class="wishlist-button">
               <WishlistButton :movie="movie" :wishlist="wishlist" />
@@ -29,15 +25,12 @@
 
             <!-- Rating og titel under billedet -->
             <div class="movie-info">
-              <p class="rating">{{ movie.rating.toFixed(1) }}</p>
+
               <h3>{{ movie.title }}</h3>
             </div>
           </div>
         </div>
-        <button
-          v-if="visibleMovies[genre.id].length < genreCount[genre.id]"
-          @click="loadMoreMovies(genre)"
-        >
+        <button v-if="visibleMovies[genre.id].length < genreCount[genre.id]" @click="loadMoreMovies(genre)">
           Load more...
         </button>
       </div>
@@ -45,134 +38,134 @@
   </div>
 </template>
 <script setup>
-import axios from "axios" // Importer axios
-import { ref, onMounted } from "vue"
-import { useRouter } from "vue-router"
-import { db, auth } from "../Services/FirebaseConfig"
-import { doc, getDoc } from "firebase/firestore"
-import WishlistButton from "./WishlistButton.vue"
+  import axios from "axios" // Importer axios
+  import { ref, onMounted } from "vue"
+  import { useRouter } from "vue-router"
+  import { db, auth } from "../Services/FirebaseConfig"
+  import { doc, getDoc } from "firebase/firestore"
+  import WishlistButton from "./WishlistButton.vue"
 
-const router = useRouter()
-const genres = ref([])
-const genreMovies = ref({})
-const genreCount = ref({})
-const visibleMovies = ref({})
-const loading = ref(true)
-const limit = 6
-const loadmoreLimit = 6
-const page = ref({})
-const wishlist = ref([]) // Brugerens ønskeliste
+  const router = useRouter()
+  const genres = ref([])
+  const genreMovies = ref({})
+  const genreCount = ref({})
+  const visibleMovies = ref({})
+  const loading = ref(true)
+  const limit = 6
+  const loadmoreLimit = 6
+  const page = ref({})
+  const wishlist = ref([]) // Brugerens ønskeliste
 
-// Hent brugerens ønskeliste fra Firestore
-const fetchWishlist = async () => {
-  const user = auth.currentUser
-  if (!user) return
+  // Hent brugerens ønskeliste fra Firestore
+  const fetchWishlist = async () => {
+    const user = auth.currentUser
+    if (!user) return
 
-  const wishlistRef = doc(db, "wishlists", user.uid)
-  const wishlistSnap = await getDoc(wishlistRef)
-  wishlist.value = wishlistSnap.exists() ? wishlistSnap.data().movies || [] : []
-}
-
-// Hent genrer og film fra backend
-const fetchGenresAndMovies = async () => {
-  try {
-    loading.value = true
-    // Hent genrer fra backend
-    const genreResponse = await axios.get(
-      "http://localhost:5000/api/movies/genres"
-    )
-    genres.value = genreResponse.data // Opdater genrer
-    // Hent film for alle genrer parallelt
-    const genreMoviesPromises = genres.value.map((genre) =>
-      loadMoviesForGenre(genre)
-    )
-    await Promise.all(genreMoviesPromises)
-  } catch (error) {
-    console.error("Could not retrieve genres and movies:", error)
-  } finally {
-    loading.value = false
+    const wishlistRef = doc(db, "wishlists", user.uid)
+    const wishlistSnap = await getDoc(wishlistRef)
+    wishlist.value = wishlistSnap.exists() ? wishlistSnap.data().movies || [] : []
   }
-}
 
-// Indlæs film for en specifik genre
-const loadMoviesForGenre = async (genre) => {
-  try {
-    const genreId = genre.id
-    const currentPage = page.value[genreId]
-    const movieResponse = await axios.get(
-      "http://localhost:5000/api/movies/moviesbygenre",
-      {
-        params: { genreId, page: currentPage }, // Send genreId og side som query-parametre
-      }
-    )
-
-    // Fjern dubletter ved hjælp af Map
-    const existingMovies = genreMovies.value[genreId] || []
-    const uniqueMovies = [
-      ...new Map(
-        [...existingMovies, ...movieResponse.data].map((m) => [m.id, m])
-      ).values(),
-    ]
-
-    genreMovies.value[genreId] = uniqueMovies
-    genreCount.value[genreId] = uniqueMovies.length
-
-    if (!visibleMovies.value[genreId]) {
-      visibleMovies.value[genreId] = uniqueMovies.slice(0, limit)
+  // Hent genrer og film fra backend
+  const fetchGenresAndMovies = async () => {
+    try {
+      loading.value = true
+      // Hent genrer fra backend
+      const genreResponse = await axios.get(
+        "http://localhost:5000/api/movies/genres"
+      )
+      genres.value = genreResponse.data // Opdater genrer
+      // Hent film for alle genrer parallelt
+      const genreMoviesPromises = genres.value.map((genre) =>
+        loadMoviesForGenre(genre)
+      )
+      await Promise.all(genreMoviesPromises)
+    } catch (error) {
+      console.error("Could not retrieve genres and movies:", error)
+    } finally {
+      loading.value = false
     }
-  } catch (error) {
-    console.error("Could not load movies for genre:", error)
   }
-}
 
-// Indlæs flere film for en given genre
-const loadMoreMovies = (genre) => {
-  const genreId = genre.id
-  const currentPage = page.value[genreId] + 1 // Inkrementér siden for genren
-  page.value[genreId] = currentPage // Opdater siden for genren
-  loadMoviesForGenre(genre) // Indlæs det næste sæt af film
+  // Indlæs film for en specifik genre
+  const loadMoviesForGenre = async (genre) => {
+    try {
+      const genreId = genre.id
+      const currentPage = page.value[genreId]
+      const movieResponse = await axios.get(
+        "http://localhost:5000/api/movies/moviesbygenre",
+        {
+          params: { genreId, page: currentPage }, // Send genreId og side som query-parametre
+        }
+      )
 
-  // Opdater synlige film for genren
-  const allMovies = genreMovies.value[genreId]
-  const currentVisibleMovies = visibleMovies.value[genreId]
-  const nextMovies = allMovies.slice(
-    currentVisibleMovies.length,
-    currentVisibleMovies.length + loadmoreLimit
-  )
-  visibleMovies.value[genreId] = [...currentVisibleMovies, ...nextMovies]
-}
+      // Fjern dubletter ved hjælp af Map
+      const existingMovies = genreMovies.value[genreId] || []
+      const uniqueMovies = [
+        ...new Map(
+          [...existingMovies, ...movieResponse.data].map((m) => [m.id, m])
+        ).values(),
+      ]
 
-const goToMoviesInGenre = (genreId) => {
-  router.push({ name: "movie-genre", params: { id: genreId } })
-}
+      genreMovies.value[genreId] = uniqueMovies
+      genreCount.value[genreId] = uniqueMovies.length
 
-const goToMovieDetails = (movieId) => {
-  router.push({ name: "movie-details", params: { id: movieId } })
-}
+      if (!visibleMovies.value[genreId]) {
+        visibleMovies.value[genreId] = uniqueMovies.slice(0, limit)
+      }
+    } catch (error) {
+      console.error("Could not load movies for genre:", error)
+    }
+  }
 
-// Kald hentningsfunktionen, når komponenten bliver monteret
-onMounted(() => {
-  fetchGenresAndMovies()
-  auth.onAuthStateChanged((user) => {
-    if (user) fetchWishlist()
+  // Indlæs flere film for en given genre
+  const loadMoreMovies = (genre) => {
+    const genreId = genre.id
+    const currentPage = page.value[genreId] + 1 // Inkrementér siden for genren
+    page.value[genreId] = currentPage // Opdater siden for genren
+    loadMoviesForGenre(genre) // Indlæs det næste sæt af film
+
+    // Opdater synlige film for genren
+    const allMovies = genreMovies.value[genreId]
+    const currentVisibleMovies = visibleMovies.value[genreId]
+    const nextMovies = allMovies.slice(
+      currentVisibleMovies.length,
+      currentVisibleMovies.length + loadmoreLimit
+    )
+    visibleMovies.value[genreId] = [...currentVisibleMovies, ...nextMovies]
+  }
+
+  const goToMoviesInGenre = (genreId) => {
+    router.push({ name: "movie-genre", params: { id: genreId } })
+  }
+
+  const goToMovieDetails = (movieId) => {
+    router.push({ name: "movie-details", params: { id: movieId } })
+  }
+
+  // Kald hentningsfunktionen, når komponenten bliver monteret
+  onMounted(() => {
+    fetchGenresAndMovies()
+    auth.onAuthStateChanged((user) => {
+      if (user) fetchWishlist()
+    })
   })
-})
 </script>
 
 <style scoped>
-.genre-header {
-  margin-top: 50px;
-}
-
-@media (max-width: 494px) {
   .genre-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     margin-top: 50px;
-    gap: 10px;
-
-    flex-wrap: wrap;
   }
-}
+
+  @media (max-width: 494px) {
+    .genre-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+      gap: 10px;
+
+      flex-wrap: wrap;
+    }
+  }
 </style>

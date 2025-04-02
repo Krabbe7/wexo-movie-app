@@ -8,12 +8,7 @@
     </div>
 
     <div v-else class="movie-list">
-      <div
-        v-for="movie in wishlist"
-        :key="movie.id"
-        class="movie-card"
-        @click="goToMovieDetails(movie.id)"
-      >
+      <div v-for="movie in wishlist" :key="movie.id" class="movie-card" @click="goToMovieDetails(movie.id)">
         <!-- Wishlist-knap i øverste venstre hjørne -->
         <div class="wishlist-button">
           <WishlistButton :movie="movie" :wishlist="wishlist" />
@@ -24,7 +19,7 @@
 
         <!-- Rating og titel under billedet -->
         <div class="movie-info">
-          <p class="rating">{{ movie.rating.toFixed(1) }}</p>
+
           <h3>{{ movie.title }}</h3>
         </div>
       </div>
@@ -33,54 +28,54 @@
 </template>
 
 <script setup>
-import { db, auth } from "../Services/FirebaseConfig"
-import { useRouter } from "vue-router"
-import { ref, onMounted } from "vue"
-import { doc, getDoc } from "firebase/firestore"
-import WishlistButton from "./WishlistButton.vue"
+  import { db, auth } from "../Services/FirebaseConfig"
+  import { useRouter } from "vue-router"
+  import { ref, onMounted } from "vue"
+  import { doc, getDoc } from "firebase/firestore"
+  import WishlistButton from "./WishlistButton.vue"
 
-const router = useRouter()
-const wishlist = ref([]) // Brugerens ønskeliste
-const loading = ref(true)
+  const router = useRouter()
+  const wishlist = ref([]) // Brugerens ønskeliste
+  const loading = ref(true)
 
-// Hent brugerens ønskeliste fra Firestore
-const fetchWishlist = async () => {
-  const user = auth.currentUser
-  if (!user) return
+  // Hent brugerens ønskeliste fra Firestore
+  const fetchWishlist = async () => {
+    const user = auth.currentUser
+    if (!user) return
 
-  const wishlistRef = doc(db, "wishlists", user.uid)
-  const wishlistSnap = await getDoc(wishlistRef)
+    const wishlistRef = doc(db, "wishlists", user.uid)
+    const wishlistSnap = await getDoc(wishlistRef)
 
-  if (wishlistSnap.exists()) {
-    wishlist.value = wishlistSnap.data().movies || []
-  } else {
-    wishlist.value = []
+    if (wishlistSnap.exists()) {
+      wishlist.value = wishlistSnap.data().movies || []
+    } else {
+      wishlist.value = []
+    }
+
+    loading.value = false
   }
 
-  loading.value = false
-}
+  const goToMovieDetails = (movieId) => {
+    router.push({ name: "movie-details", params: { id: movieId } })
+  }
 
-const goToMovieDetails = (movieId) => {
-  router.push({ name: "movie-details", params: { id: movieId } })
-}
-
-// Lyt efter login-ændringer
-onMounted(() => {
-  auth.onAuthStateChanged((user) => {
-    if (user) fetchWishlist()
+  // Lyt efter login-ændringer
+  onMounted(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) fetchWishlist()
+    })
   })
-})
 </script>
 
 <style scoped>
-.wishlist {
-  text-align: center;
-}
+  .wishlist {
+    text-align: center;
+  }
 
-.Tom-liste {
-  color: #ffffff;
-  text-align: center;
-  margin-top: 70px;
-  font-size: 20px;
-}
+  .Tom-liste {
+    color: #ffffff;
+    text-align: center;
+    margin-top: 70px;
+    font-size: 20px;
+  }
 </style>
