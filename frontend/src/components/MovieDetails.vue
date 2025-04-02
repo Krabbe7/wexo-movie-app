@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <!-- Trailer og detaljer under backdroppet -->
+    <!--Trailer og detaljer under backdroppet -->
     <div class="details-container">
       <div class="movie-description">
         <p>{{ movie.description }}</p>
@@ -26,7 +26,7 @@
         <p><strong>Director(s):</strong> {{ movie.directors.join(", ") }}</p>
       </div>
 
-      <!-- Responsiv trailer -->
+      <!--Responsiv trailer-->
       <div v-if="movie.trailerUrl" class="trailer-container">
         <div class="trailer">
           <iframe
@@ -59,44 +59,48 @@ import WishlistButton from "./WishlistButton.vue"
 import { auth, db } from "../Services/FirebaseConfig"
 import { doc, getDoc } from "firebase/firestore"
 
-const wishlist = ref([])
-const route = useRoute()
-const movie = ref(null)
+const wishlist = ref([]) // Liste over ønskeliste film
+const route = useRoute() // Brugerens nuværende rute
+const movie = ref(null) // Filminformation
 
+// Henter filminformation fra API'en
 const fetchMovieDetails = async () => {
   try {
     const response = await axios.get(
-      `http://localhost:5000/api/movies/movie/${route.params.id}`
+      `http://localhost:5000/api/movies/movie/${route.params.id}` // Hent filmdata baseret på filmanmeldelsen
     )
-    movie.value = response.data
+    movie.value = response.data // Gem filminformationen i 'movie'
   } catch (error) {
-    console.error("Error retrieving movie details:", error)
+    console.error("Error retrieving movie details:", error) // Fejlbehandling
   }
 }
 
+// Henter brugerens ønskeliste
 const fetchWishlist = async () => {
-  const user = auth.currentUser
-  if (!user) return
+  const user = auth.currentUser // Få den aktuelle bruger
+  if (!user) return // Hvis der ikke er en bruger logget ind, returner
 
-  const wishlistRef = doc(db, "wishlists", user.uid)
+  const wishlistRef = doc(db, "wishlists", user.uid) // Hent ønskelisten for den loggede bruger
   const wishlistSnap = await getDoc(wishlistRef)
 
   if (wishlistSnap.exists()) {
-    wishlist.value = wishlistSnap.data().movies || []
+    wishlist.value = wishlistSnap.data().movies || [] // Opdater ønskelisten, hvis den findes
   }
 }
 
+// Tjek om filmen er i ønskelisten
 watchEffect(() => {
   if (movie.value) {
     movie.value.isInWishlist = wishlist.value.some(
-      (m) => m.id === movie.value.id
+      (m) => m.id === movie.value.id // Hvis filmen findes i ønskelisten, markér den som sådan
     )
   }
 })
 
+// Kald ved opstart af komponenten
 onMounted(async () => {
-  await fetchMovieDetails()
-  await fetchWishlist()
+  await fetchMovieDetails() // Hent filminformation ved komponentens opstart
+  await fetchWishlist() // Hent ønskelisten ved komponentens opstart
 })
 </script>
 

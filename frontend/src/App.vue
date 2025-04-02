@@ -1,6 +1,8 @@
 <template>
+  <!-- Header wrapper der indeholder navigationen -->
   <header class="header-wrapper">
     <nav class="navbar">
+      <!-- Venstre sektion med logo -->
       <div class="left">
         <router-link to="/" class="logo">
           <img
@@ -11,6 +13,7 @@
         </router-link>
       </div>
 
+      <!-- Center sektion til navigation (Home, About us, Contact) -->
       <div class="center">
         <ul v-if="!isMobile">
           <li @click="goToHome">Home</li>
@@ -19,8 +22,9 @@
         </ul>
       </div>
 
+      <!-- Højre sektion med brugerens avatar og dropdown menu -->
       <div class="right">
-        <!-- Avatar container -->
+        <!-- Avatar container med dropdown-menu ved klik og hover -->
         <div
           class="avatar-container"
           @click="handleAvatarClick"
@@ -28,18 +32,20 @@
           @mouseleave="isUserMenuActive = false"
         >
           <img src="./assets/avatar.png" alt="User Avatar" class="avatar" />
-          <!-- Dropdown-menu -->
+          <!-- Dropdown-menu til brugerens valg -->
           <div v-if="isUserMenuActive" class="user-dropdown" @click.stop>
             <p class="velkomstBesked">
               Hi {{ authStore.userEmail || "guest" }}!
             </p>
 
+            <!-- Hvis brugeren er logget ind, vis mulighed for at gå til ønskelisten og logge ud -->
             <ul>
               <template v-if="authStore.userEmail">
                 <li @click="goToWishlist">My wishlist</li>
                 <li @click="authStore.signOutUser">Log ud</li>
               </template>
 
+              <!-- Hvis brugeren ikke er logget ind, vis login og oprettelse af profil -->
               <template v-else>
                 <ul>
                   <li @click="goToLogin">Login</li>
@@ -49,10 +55,13 @@
             </ul>
           </div>
         </div>
+
+        <!-- Hamburger-menu til mobilvisning -->
         <div class="hamburger" @click="toggleMenu">
           <span class="bar"></span>
           <span class="bar"></span>
           <span class="bar"></span>
+          <!-- Dropdown-menu for navigation ved klik på hamburger-ikon -->
           <div :class="['dropdown-menu', { active: isMenuOpen }]">
             <ul>
               <li @click="goToHome">Home</li>
@@ -64,24 +73,31 @@
       </div>
     </nav>
   </header>
+
+  <!-- Main container for RouterView (for rendering af forskellige ruter) -->
   <div class="main-container">
     <RouterView />
   </div>
 </template>
 
 <script setup>
+// Importer nødvendige funktioner og data fra Vue og Firebase
 import { useRouter } from "vue-router"
 import { useAuthStore } from "./stores/authStore"
 import { ref, onMounted } from "vue"
 
+// Router instans til navigation
 const router = useRouter()
+// Auth store til at håndtere brugerdata
 const authStore = useAuthStore()
 
-const isMobile = ref(false)
-const isUserMenuActive = ref(false)
-const isMenuOpen = ref(false)
-const isAuthReady = ref(false)
+// Reaktive variabler til at styre tilstande
+const isMobile = ref(false) // Kontrollerer om brugerens enhed er mobil
+const isUserMenuActive = ref(false) // Kontrollerer om brugerens dropdown-menu er aktiv
+const isMenuOpen = ref(false) // Kontrollerer om hamburger-menuen er åben
+const isAuthReady = ref(false) // Bekræfter at autentificering er klar
 
+// Navigationsfunktioner
 const goToWishlist = () => {
   router.push({ name: "wishlist" })
 }
@@ -98,6 +114,7 @@ const goToHome = () => {
   router.push({ name: "home" })
 }
 
+// Håndtering af avatar klik: naviger til ønskeliste hvis logget ind, ellers til login
 const handleAvatarClick = () => {
   if (authStore.userEmail) {
     goToWishlist()
@@ -106,14 +123,17 @@ const handleAvatarClick = () => {
   }
 }
 
+// Toggle hamburger-menuen
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
 }
 
+// Kør kode når komponenten er monteret
 onMounted(async () => {
   await authStore.initializeAuth() // Sørg for at auth-data er hentet
   isAuthReady.value = true
 
+  // Check om brugerens enhed er mobil
   isMobile.value = window.innerWidth <= 768
   window.addEventListener("resize", () => {
     isMobile.value = window.innerWidth <= 768

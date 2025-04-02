@@ -2,17 +2,22 @@
   <div class="container">
     <h1>Movies</h1>
 
+    <!-- Loader vises, når data hentes -->
     <div class="loading-color" v-if="loading">Loading...</div>
 
     <div v-else>
+      <!-- Loop gennem alle genrer -->
       <div v-for="genre in genres" :key="genre.id" class="genre-section">
         <div class="genre-header">
+          <!-- Genre titel og antal film i denne genre -->
           <h2>{{ genre.name }} ({{ genreCount[genre.id] || 0 }} movies)</h2>
+          <!-- Knappen for at se alle film i denne genre -->
           <button class="MoviesInGenre" @click="goToMoviesInGenre(genre.id)">
             See all {{ genre.name }} movies
           </button>
         </div>
         <div class="movie-list">
+          <!-- Loop gennem filmene i den aktuelle genre -->
           <div
             v-for="movie in visibleMovies[genre.id]"
             :key="movie.id"
@@ -33,6 +38,7 @@
             </div>
           </div>
         </div>
+        <!-- Load flere film-knap, hvis der er flere film at vise -->
         <button
           v-if="visibleMovies[genre.id].length < genreCount[genre.id]"
           @click="loadMoreMovies(genre)"
@@ -43,6 +49,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import axios from "axios" // Importer axios
 import { ref, onMounted } from "vue"
@@ -52,16 +59,16 @@ import { doc, getDoc } from "firebase/firestore"
 import WishlistButton from "./WishlistButton.vue"
 
 const router = useRouter()
-const genres = ref([])
-const genreMovies = ref({})
-const genreCount = ref({})
-const visibleMovies = ref({})
-const loading = ref(true)
-const limit = 6
-const loadmoreLimit = 6
-const page = ref({})
+const genres = ref([]) // Liste over alle genrer
+const genreMovies = ref({}) // Objekt der indeholder filmene for hver genre
+const genreCount = ref({}) // Objekt der indeholder antallet af film for hver genre
+const visibleMovies = ref({}) // Objekt der indeholder de synlige film for hver genre
+const loading = ref(true) // Indikator for om data er ved at blive hentet
+const limit = 6 // Antallet af film, der vises initialt
+const loadmoreLimit = 6 // Antallet af film, der indlæses ad gangen, når der trykkes på "Load more"
+const page = ref({}) // Objekt til at holde styr på den aktuelle side for hver genre
 const wishlist = ref([]) // Brugerens ønskeliste
-const CACHE_EXPIRY_TIME = 30 * 60 * 1000 // 30 minutter
+const CACHE_EXPIRY_TIME = 30 * 60 * 1000 // 30 minutter cache-udløbstid
 
 // Hent brugerens ønskeliste fra Firestore
 const fetchWishlist = async () => {
@@ -109,7 +116,6 @@ const loadMoviesForGenre = async (genre) => {
     }
 
     // Hvis cache er udløbet eller ikke findes, hent nye data fra API
-
     const currentPage = page.value[genreId] || 1
     const movieResponse = await axios.get(
       "http://localhost:5000/api/movies/moviesbygenre",
@@ -159,19 +165,20 @@ const loadMoreMovies = (genre) => {
   visibleMovies.value[genreId] = [...currentVisibleMovies, ...nextMovies]
 }
 
+// Naviger til side med film i en given genre
 const goToMoviesInGenre = (genreId) => {
   router.push({ name: "movie-genre", params: { id: genreId } })
 }
 
+// Naviger til detaljer om en film
 const goToMovieDetails = (movieId) => {
   router.push({ name: "movie-details", params: { id: movieId } })
 }
 
-// Kald hentningsfunktionen, når komponenten bliver monteret
 onMounted(() => {
   fetchGenresAndMovies()
   auth.onAuthStateChanged((user) => {
-    if (user) fetchWishlist()
+    if (user) fetchWishlist() // Hvis brugeren er logget ind, hent ønskelisten
   })
 })
 </script>
