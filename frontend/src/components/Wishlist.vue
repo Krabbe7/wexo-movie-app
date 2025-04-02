@@ -31,12 +31,13 @@
   import { db, auth } from "../Services/FirebaseConfig"
   import { useRouter } from "vue-router"
   import { ref, onMounted } from "vue"
-  import { doc, getDoc } from "firebase/firestore"
+  import { doc, getDoc, onSnapshot } from "firebase/firestore"
   import WishlistButton from "./WishlistButton.vue"
 
   const router = useRouter()
   const wishlist = ref([]) // Brugerens ønskeliste
   const loading = ref(true)
+
 
   // Hent brugerens ønskeliste fra Firestore
   const fetchWishlist = async () => {
@@ -44,15 +45,17 @@
     if (!user) return
 
     const wishlistRef = doc(db, "wishlists", user.uid)
-    const wishlistSnap = await getDoc(wishlistRef)
 
-    if (wishlistSnap.exists()) {
-      wishlist.value = wishlistSnap.data().movies || []
-    } else {
-      wishlist.value = []
-    }
+    onSnapshot(wishlistRef, (snapshot) => {
+      if (snapshot.exists()) {
+        wishlist.value = snapshot.data().movies || []
+        localStorage.setItem(`wishlist_${user.uid}`, JSON.stringify(wishlist.value)) // Cache i localStorage
+      } else {
+        wishlist.value = []
+      }
 
-    loading.value = false
+      loading.value = false
+    })
   }
 
   const goToMovieDetails = (movieId) => {

@@ -55,6 +55,7 @@
   const loadmoreLimit = 6
   const page = ref({})
   const wishlist = ref([]) // Brugerens ønskeliste
+  const CACHE_EXPIRY_TIME = 30 * 60 * 1000; // 30 minutter
 
   // Hent brugerens ønskeliste fra Firestore
   const fetchWishlist = async () => {
@@ -91,48 +92,48 @@
   const loadMoviesForGenre = async (genre) => {
     try {
       const genreId = genre.id
-      const currentPage = page.value[genreId]
+      const currentTime = Date.now(); // Tiden i millisekunder
+
+      // Hvis filmene for denne genre er hentet, og de er inden for cache-udløbsintervallet, brug cache
+      if (genreMovies.value[genreId] && currentTime - genreMovies.value[genreId].timestamp < CACHE_EXPIRY_TIME) {
+
+        return; // Brug den cachede version, ingen behov for at hente nye data
+      }
+
+      // Hvis cache er udløbet eller ikke findes, hent nye data fra API
+
+      const currentPage = page.value[genreId] || 1
       const movieResponse = await axios.get(
         "http://localhost:5000/api/movies/moviesbygenre",
         {
-          params: { genreId, page: currentPage }, // Send genreId og side som query-parametre
+          params: { genreId, page: currentPage },
         }
       )
 
       // Fjern dubletter ved hjælp af Map
-      const existingMovies = genreMovies.value[genreId] || []
+      const existingMovies = genreMovies.value[genreId]?.movies || []
       const uniqueMovies = [
         ...new Map(
           [...existingMovies, ...movieResponse.data].map((m) => [m.id, m])
         ).values(),
       ]
 
-      genreMovies.value[genreId] = uniqueMovies
+      // Gem de hentede film og tilføj en timestamp
+      genreMovies.value[genreId] = {
+        movies: uniqueMovies,
+        timestamp: currentTime, // Gem tidspunktet for når data blev hentet
+      }
       genreCount.value[genreId] = uniqueMovies.length
 
+      // Hvis der ikke er nogen synlige film for denne genre, vis de første 'limit' antal film
       if (!visibleMovies.value[genreId]) {
         visibleMovies.value[genreId] = uniqueMovies.slice(0, limit)
       }
+
+      console.log(`Loaded fresh movies for genre ${genreId}`);
     } catch (error) {
       console.error("Could not load movies for genre:", error)
     }
-  }
-
-  // Indlæs flere film for en given genre
-  const loadMoreMovies = (genre) => {
-    const genreId = genre.id
-    const currentPage = page.value[genreId] + 1 // Inkrementér siden for genren
-    page.value[genreId] = currentPage // Opdater siden for genren
-    loadMoviesForGenre(genre) // Indlæs det næste sæt af film
-
-    // Opdater synlige film for genren
-    const allMovies = genreMovies.value[genreId]
-    const currentVisibleMovies = visibleMovies.value[genreId]
-    const nextMovies = allMovies.slice(
-      currentVisibleMovies.length,
-      currentVisibleMovies.length + loadmoreLimit
-    )
-    visibleMovies.value[genreId] = [...currentVisibleMovies, ...nextMovies]
   }
 
   const goToMoviesInGenre = (genreId) => {
