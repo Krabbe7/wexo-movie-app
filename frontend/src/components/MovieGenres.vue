@@ -137,8 +137,6 @@ const loadMoviesForGenre = async (genre) => {
     if (!visibleMovies.value[genreId]) {
       visibleMovies.value[genreId] = uniqueMovies.slice(0, limit)
     }
-
-    console.log(`Loaded fresh movies for genre ${genreId}`)
   } catch (error) {
     console.error("Could not load movies for genre:", error)
   }
@@ -179,6 +177,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.genre-section {
+  margin-bottom: 100px;
+}
 .genre-header {
   margin-top: 50px;
 }
