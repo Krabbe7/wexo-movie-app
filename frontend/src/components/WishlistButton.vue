@@ -7,112 +7,82 @@
 </template>
 
 <script setup>
-  import { ref, watchEffect } from "vue"
-  import { db, auth } from "../Services/FirebaseConfig"
-  import {
-    doc,
-    getDoc,
-    setDoc,
-    updateDoc,
-    arrayUnion,
-    arrayRemove,
-  } from "firebase/firestore"
-  import { useRouter } from "vue-router"
+import { ref, defineProps, computed } from "vue"
+import { doc, setDoc } from "firebase/firestore"
+import { auth, db } from "../Services/FirebaseConfig"
 
-  const router = useRouter()
-  const props = defineProps({
-    movie: Object,
-    wishlist: Array,
-  })
+const props = defineProps({
+  movie: Object,
+  wishlist: Array,
+})
 
-  const isInWishlist = ref(false)
+const isInWishlist = computed(() => {
+  return props.wishlist.some((m) => m.id === props.movie.id)
+})
 
-  // Funktion til at tjekke om filmen er i ønskelisten
-  const checkIfInWishlist = () => {
-    isInWishlist.value =
-      props.wishlist?.some((m) => m.id === props.movie.id) || false
+const toggleWishlist = async () => {
+  const user = auth.currentUser
+  if (!user) return // Sikre at brugeren er logget ind
+
+  const movieIndex = props.wishlist.findIndex((m) => m.id === props.movie.id)
+
+  if (movieIndex === -1) {
+    // Tilføjer film til wishlist
+    props.wishlist.push(props.movie)
+  } else {
+    // Fjerne film fra wishlist
+    props.wishlist.splice(movieIndex, 1)
   }
 
-  // Reagerer på ændringer i `wishlist`
-  watchEffect(() => {
-    checkIfInWishlist()
-  })
+  // Update Firestore
+  const wishlistRef = doc(db, "wishlists", user.uid) // Brugerens ønskeliste-dokument
 
-  const toggleWishlist = async () => {
-    try {
-      const user = auth.currentUser
-      if (!user) {
-        router.push({ name: "login" })
-        alert("Please log in to manage your wishlist")
-        return
-      }
-
-      const wishlistRef = doc(db, "wishlists", user.uid)
-      const wishlistSnap = await getDoc(wishlistRef)
-
-      // Optimistisk opdatering: Opdater isInWishlist først
-      isInWishlist.value = !isInWishlist.value
-
-      // Hvis ønskelisten ikke eksisterer, opret den
-      if (!wishlistSnap.exists()) {
-        await setDoc(wishlistRef, { movies: [] })
-      }
-
-      if (isInWishlist.value) {
-        await updateDoc(wishlistRef, { movies: arrayUnion(props.movie) })
-        props.wishlist.push(props.movie)
-      } else {
-        await updateDoc(wishlistRef, { movies: arrayRemove(props.movie) })
-        props.wishlist.splice(
-          props.wishlist.findIndex((m) => m.id === props.movie.id),
-          1
-        )
-      }
-
-    } catch (error) {
-      console.error("Error updating wishlist:", error)
-      alert("An error occurred. Please try again later.")
-    }
+  try {
+    await setDoc(wishlistRef, { movies: props.wishlist }, { merge: true })
+    console.log("Wishlist updated successfully")
+  } catch (error) {
+    console.error("Error updating wishlist:", error)
   }
+}
 </script>
 
 <style scoped>
-  .wishlist-btn {
-    position: absolute;
-    top: 5px;
-    left: 0px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-  }
+.wishlist-btn {
+  position: absolute;
+  top: 5px;
+  left: 0px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
 
-  .wishlist-icon {
-    width: 30px;
-    height: 30px;
-    background: rgba(0, 0, 0, 0.7);
-    /* Mørk baggrund */
-    border-radius: 8px;
-    /* Bløde hjørner */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s, transform 0.2s;
-  }
+.wishlist-icon {
+  width: 30px;
+  height: 30px;
+  background: rgba(0, 0, 0, 0.7);
+  /* Mørk baggrund */
+  border-radius: 8px;
+  /* Bløde hjørner */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s, transform 0.2s;
+}
 
-  .wishlist-btn:hover .wishlist-icon {
-    background: rgba(0, 0, 0, 0.9);
-    /* Lidt lysere på hover */
-    transform: scale(1.1);
-  }
+.wishlist-btn:hover .wishlist-icon {
+  background: rgba(0, 0, 0, 0.9);
+  /* Lidt lysere på hover */
+  transform: scale(1.1);
+}
 
-  .wishlist-icon i {
-    font-size: 15px;
-    color: white;
-    transition: color 0.3s;
-  }
+.wishlist-icon i {
+  font-size: 15px;
+  color: white;
+  transition: color 0.3s;
+}
 
-  .fas.fa-bookmark {
-    color: #f39c12;
-    /* Guld-farvet når tilføjet */
-  }
+.fas.fa-bookmark {
+  color: #f39c12;
+  /* Guld-farvet når tilføjet */
+}
 </style>
