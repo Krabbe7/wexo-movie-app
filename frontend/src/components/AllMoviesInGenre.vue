@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>{{ genreName }} Movies ({{ genreCount[genreId] || 0 }})</h1>
+    <h1 v-if="!loading">{{ genreName }} Movies ({{ genreCount[genreId] || 0 }})</h1>
 
     <div class="loading-color" v-if="loading">Loading...</div>
 
