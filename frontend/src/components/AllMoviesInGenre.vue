@@ -103,10 +103,7 @@ const fetchWishlist = async () => {
 
   const wishlistRef = doc(db, "wishlists", user.uid)
   const wishlistSnap = await getDoc(wishlistRef)
-
-  if (wishlistSnap.exists()) {
-    wishlist.value = wishlistSnap.data().movies || []
-  }
+  wishlist.value = wishlistSnap.exists() ? wishlistSnap.data().movies || [] : []
 }
 
 const goToMovieDetails = (movieId) => {
