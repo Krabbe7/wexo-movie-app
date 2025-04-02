@@ -16,6 +16,7 @@
         <!-- Filmplakat -->
         <img :src="movie.poster" alt="Movie Poster" />
 
+        <!-- Rating og titel under billedet -->
         <div class="movie-info">
 
           <h3>{{ movie.title }}</h3>
@@ -44,47 +45,41 @@
 
   // Hent film for en specifik genre
   const fetchMoviesByGenre = async () => {
-    const cachedMovies = localStorage.getItem(`movies-${genreId.value}`);
-
-    if (cachedMovies) {
-      // Hvis vi har cachet filmene, brug dem
-      movies.value = JSON.parse(cachedMovies);
-      genreCount.value[genreId.value] = movies.value.length;
-      return; // Stop videre API-kald
-    }
-
     try {
-      loading.value = true;
-      await fetchWishlist(); // Hent wishlist først
+      loading.value = true
+      await fetchWishlist() // Hent wishlist først
 
+      // Hent genre-navn
       const genreResponse = await axios.get(
         "http://localhost:5000/api/movies/genres"
-      );
-      const foundGenre = genreResponse.data.find((g) => g.id == genreId.value);
-      genreName.value = foundGenre ? foundGenre.name : "Unknown";
+      )
+      const foundGenre = genreResponse.data.find((g) => g.id == genreId.value)
+      genreName.value = foundGenre ? foundGenre.name : "Unknown"
 
+      // Hent film i genren
       const movieResponse = await axios.get(
         "http://localhost:5000/api/movies/moviesbygenre",
         {
           params: { genreId: genreId.value },
         }
-      );
+      )
 
+      // Fjern duplikater baseret på film-id (Map sikrer unikke film)
       const uniqueMovies = [
         ...new Map(movieResponse.data.map((movie) => [movie.id, movie])).values(),
-      ];
+      ]
 
-      movies.value = uniqueMovies;
-      genreCount.value[genreId.value] = uniqueMovies.length;
+      // Opdater movies listen med de unikke film
+      movies.value = uniqueMovies
 
-      // Cache filmene til localStorage
-      localStorage.setItem(`movies-${genreId.value}`, JSON.stringify(uniqueMovies));
+      // Opdater genreCount for den specifikke genre
+      genreCount.value[genreId.value] = uniqueMovies.length
     } catch (error) {
-      console.error("Error retrieving movies:", error);
+      console.error("Error retrieving movies:", error)
     } finally {
-      loading.value = false;
+      loading.value = false
     }
-  };
+  }
 
   // Hent ønskeliste fra Firestore
   const fetchWishlist = async () => {
