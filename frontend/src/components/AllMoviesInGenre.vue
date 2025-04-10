@@ -48,6 +48,7 @@
   const loading = ref(true) // Indikator for om data er under indlæsning
   const wishlist = ref([]) // Ønskeliste med brugerens gemte film
   const genreCache = new Map() // Caching af genrer for at optimere performance
+  const CACHE_EXPIRY_TIME = 30 * 60 * 1000 // Cache-udløbstid (30 minutter)
 
   // Henter film for en specifik genre
   const fetchMoviesByGenre = async () => {
