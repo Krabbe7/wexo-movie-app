@@ -13,12 +13,7 @@
 
     <!-- Viser listen af film -->
     <div v-else class="movie-list">
-      <div
-        v-for="movie in movies"
-        :key="movie.id"
-        class="movie-card"
-        @click="goToMovieDetails(movie.id)"
-      >
+      <div v-for="movie in movies" :key="movie.id" class="movie-card" @click="goToMovieDetails(movie.id)">
         <!-- Wishlist-knap i øverste venstre hjørne -->
         <div class="wishlist-button">
           <WishlistButton :movie="movie" :wishlist="wishlist" />
@@ -37,87 +32,98 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
-import { useRoute, useRouter } from "vue-router"
-import axios from "axios"
-import WishlistButton from "./WishlistButton.vue"
-import { auth, db } from "../Services/FirebaseConfig"
-import { doc, getDoc } from "firebase/firestore"
+  import { ref, onMounted } from "vue"
+  import { useRoute, useRouter } from "vue-router"
+  import axios from "axios"
+  import WishlistButton from "./WishlistButton.vue"
+  import { auth, db } from "../Services/FirebaseConfig"
+  import { doc, getDoc } from "firebase/firestore"
 
-const route = useRoute()
-const router = useRouter()
-const genreId = ref(route.params.id) // Henter genre-id fra URL
-const genreName = ref("") // Gemmer genrens navn
-const genreCount = ref({}) // Gemmer antal film pr. genre
-const movies = ref([]) // Liste over film i genren
-const loading = ref(true) // Indikator for om data er under indlæsning
-const wishlist = ref([]) // Ønskeliste med brugerens gemte film
-const genreCache = new Map() // Caching af genrer for at optimere performance
+  const route = useRoute()
+  const router = useRouter()
+  const genreId = ref(route.params.id) // Henter genre-id fra URL
+  const genreName = ref("") // Gemmer genrens navn
+  const genreCount = ref({}) // Gemmer antal film pr. genre
+  const movies = ref([]) // Liste over film i genren
+  const loading = ref(true) // Indikator for om data er under indlæsning
+  const wishlist = ref([]) // Ønskeliste med brugerens gemte film
+  const genreCache = new Map() // Caching af genrer for at optimere performance
 
-// Henter film for en specifik genre
-const fetchMoviesByGenre = async () => {
-  try {
-    loading.value = true
-    await fetchWishlist() // Hent ønskeliste først
+  // Henter film for en specifik genre
+  const fetchMoviesByGenre = async () => {
+    try {
+      loading.value = true
+      await fetchWishlist() // Hent ønskeliste først
 
-    // Brug cache til genrer, hvis muligt
-    const genrePromise = genreCache.has("genres")
-      ? Promise.resolve(genreCache.get("genres"))
-      : axios.get("http://localhost:5000/api/movies/genres")
+      // Tjek om filmene for genren er cachet i localStorage
+      const cachedData = localStorage.getItem(`genre-${genreId.value}`)
+      const currentTime = Date.now()
 
-    const moviesPromise = axios.get(
-      "http://localhost:5000/api/movies/moviesbygenre",
-      {
-        params: { genreId: genreId.value },
+      if (cachedData) {
+        const parsedData = JSON.parse(cachedData)
+        // Tjek om cachen er gyldig (indenfor cache-udløbstid)
+        if (currentTime - parsedData.timestamp < CACHE_EXPIRY_TIME) {
+          // Brug cachede data fra localStorage
+          genreName.value = parsedData.genreName
+          movies.value = parsedData.movies
+          genreCount.value[genreId.value] = parsedData.movies.length
+          return // Brug cachen og stop videre hentning
+        }
       }
-    )
 
-    // Henter genre- og filmdata samtidig
-    const [genreResponse, movieResponse] = await Promise.all([
-      genrePromise,
-      moviesPromise,
-    ])
+      // Hvis der ikke er cachet data eller cachen er for gammel, hent nye data
+      const genreResponse = await axios.get("http://localhost:5000/api/movies/genres")
+      const movieResponse = await axios.get(
+        "http://localhost:5000/api/movies/moviesbygenre",
+        {
+          params: { genreId: genreId.value },
+        }
+      )
 
-    // Opdater cache med genrer, hvis de ikke allerede er gemt
-    if (!genreCache.has("genres") && genreResponse.data) {
-      genreCache.set("genres", genreResponse.data)
+      // Find genrens navn baseret på genreId
+      const foundGenre = genreResponse.data.find((g) => g.id == genreId.value)
+      genreName.value = foundGenre ? foundGenre.name : "Unknown"
+
+      // Fjern duplikater fra filmene baseret på film-id
+      const uniqueMovies = [
+        ...new Map(movieResponse.data.map((movie) => [movie.id, movie])).values(),
+      ]
+
+      // Gem data i localStorage med timestamp
+      const cacheData = {
+        genreName: genreName.value,
+        movies: uniqueMovies,
+        timestamp: currentTime,
+      }
+      localStorage.setItem(`genre-${genreId.value}`, JSON.stringify(cacheData))
+
+      // Opdater dataene i Vue
+      movies.value = uniqueMovies
+      genreCount.value[genreId.value] = uniqueMovies.length
+    } catch (error) {
+      console.error("Error retrieving movies:", error)
+    } finally {
+      loading.value = false // Stopper loading-indikatoren
     }
-
-    // Find genrens navn baseret på genreId
-    const foundGenre = genreResponse.data.find((g) => g.id == genreId.value)
-    genreName.value = foundGenre ? foundGenre.name : "Unknown"
-
-    // Fjern duplikater fra filmene baseret på film-id
-    const uniqueMovies = [
-      ...new Map(movieResponse.data.map((movie) => [movie.id, movie])).values(),
-    ]
-
-    movies.value = uniqueMovies
-    genreCount.value[genreId.value] = uniqueMovies.length
-  } catch (error) {
-    console.error("Error retrieving movies:", error)
-  } finally {
-    loading.value = false // Stopper loading-indikatoren
   }
-}
 
-// Henter ønskeliste fra Firestore
-const fetchWishlist = async () => {
-  const user = auth.currentUser
-  if (!user) return
+  // Henter ønskeliste fra Firestore
+  const fetchWishlist = async () => {
+    const user = auth.currentUser
+    if (!user) return
 
-  const wishlistRef = doc(db, "wishlists", user.uid)
-  const wishlistSnap = await getDoc(wishlistRef)
-  wishlist.value = wishlistSnap.exists() ? wishlistSnap.data().movies || [] : []
-}
+    const wishlistRef = doc(db, "wishlists", user.uid)
+    const wishlistSnap = await getDoc(wishlistRef)
+    wishlist.value = wishlistSnap.exists() ? wishlistSnap.data().movies || [] : []
+  }
 
-// Navigerer til filmens detaljer
-const goToMovieDetails = (movieId) => {
-  router.push({ name: "movie-details", params: { id: movieId } })
-}
+  // Navigerer til filmens detaljer
+  const goToMovieDetails = (movieId) => {
+    router.push({ name: "movie-details", params: { id: movieId } })
+  }
 
-// Henter både film, når komponenten mountes
-onMounted(async () => {
-  await fetchMoviesByGenre()
-})
+  // Henter både film, når komponenten mountes
+  onMounted(async () => {
+    await fetchMoviesByGenre()
+  })
 </script>
