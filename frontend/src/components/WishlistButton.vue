@@ -10,7 +10,7 @@
 
 <script setup>
 // Importer nødvendige Vue funktioner og Firebase funktioner
-import { defineProps, computed } from "vue" // Brug Vue's reaktive funktioner
+import { computed } from "vue" // Brug Vue's reaktive funktioner
 import { doc, setDoc } from "firebase/firestore" // Brug Firebase Firestore funktioner
 import { auth, db } from "../Services/FirebaseConfig" // Importer Firebase autentificering og databaseinstans
 import { useRouter } from "vue-router" // Importer router
