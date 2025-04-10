@@ -22,7 +22,7 @@
         <p>{{ movie.description }}</p>
         <p><strong>Release Year:</strong> {{ movie.releaseYear }}</p>
         <p><strong>Genres:</strong> {{ movie.genres.join(", ") }}</p>
-        <p><strong>Rating:</strong> {{ movie.rating }}/10</p>
+        <p><strong>Rating:</strong> {{ movie.rating.toFixed(1) }}/10</p>
         <p><strong>Director(s):</strong> {{ movie.directors.join(", ") }}</p>
       </div>
 
